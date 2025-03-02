@@ -1,0 +1,32 @@
+//@version=5
+strategy("Buy when close above EMA34, Sell when below EMA34", overlay=true)
+
+// Get last Daily closing price value
+// dailyClose = request.security((syminfo.tickerid, "D", close[1])
+// plot(dailyClose, color=color.red, linewidth=2)
+
+// EMA 34
+ema34 = ta.ema(close, 34)
+plot(ema34, color=color.blue, linewidth=2)
+
+// Define the buy and sell conditions
+buyCondition = close > ema34
+sellCondition = close < ema34
+
+// Determine if a position is still open
+isPositionOpen = strategy.position_size > 0
+
+// Entering position signal activated only if not already in a trade
+buySignal = buyCondition and isPositionOpen == false
+sellSignal = sellCondition and isPositionOpen == true
+
+// Generate strategy entries and exits (if you're using this as a strategy)
+if buySignal
+    strategy.entry("Buy", strategy.long)
+
+if sellSignal
+    strategy.close("Buy")
+
+// Plot buy and sell signals on the chart
+plotshape(series=buySignal, location=location.belowbar, color=color.green, style=shape.labelup, title="Buy Signal", text="BUY")
+plotshape(series=sellSignal, location=location.abovebar, color=color.red, style=shape.labeldown, title="Sell Signal", text="SELL")

@@ -1,0 +1,52 @@
+//@version=5
+strategy("Dual EMA and Heikin ashi 2 following close price", overlay=true)
+
+// Determnine closing price with Heikin ashi candle
+haTicker = ticker.heikinashi(syminfo.tickerid)
+haClose = request.security(haTicker, timeframe.period, close)
+haOpen = request.security(haTicker, timeframe.period, open)
+haClosePrevious = request.security(haTicker, timeframe.period, close[1])
+haOpenPrevious = request.security(haTicker, timeframe.period, open[1])
+
+// Calculate Exponential Moving Average (EMA) on Heikin Ashi closing prices
+emaFastLength = input.int(9, minval=1)
+emaSlowLength = input.int(21, minval=1)
+fastEMA = ta.ema(haClose, emaFastLength)
+slowEMA = ta.ema(haClose, emaSlowLength)
+
+// Plot Exponential Moving Averages
+plot(fastEMA, color=color.blue, title="Fast EMA")
+plot(slowEMA, color=color.red, title="Slow EMA")
+
+// Determine if a position is still open
+isPositionOpen = strategy.position_size > 0
+
+// Determine Buy/Sell Signals based on Moving Averages
+buyEMA = fastEMA > slowEMA
+sellEMA = fastEMA < slowEMA
+
+// Determine Buy/Sell Signals based on Closing Price (3 conditions)
+// ex.: To entering Long we need
+//      1- EMA9 above EMA21
+//      2- Heikin ashi price close above EMA9
+//      3- Must be a green candle
+buyClose = buyEMA and haClose > fastEMA and haClose > haOpen
+sellClose = sellEMA and haClose <fastEMA and haClose < haOpen
+
+// Entering position signal activated only if not already in a trade
+buySignal = buyClose and isPositionOpen == false
+sellSignal = sellClose and isPositionOpen == false
+
+// Open position
+if buySignal
+    strategy.entry("Buy", strategy.long)
+//if sellSignal
+//    strategy.entry("Sell", strategy.short)
+
+// Close position if needed - Check for two consecutive green/red candles
+closeBuyPosition = haClose < haOpen and haClosePrevious < haOpenPrevious
+closeSellPosition = haClose > haOpen and haClosePrevious > haOpenPrevious
+if closeBuyPosition
+    strategy.close("Buy")
+if closeSellPosition
+    strategy.close("Sell")   
