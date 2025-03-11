@@ -2,9 +2,6 @@
 strategy("Long Swing strategy (Weekly)", overlay=true)
 
 // +++ Modify to buy:
-// - Stoch and Stoch RSI is under ...
-// - STCH croisement
-// - Volume
 // - Bougie verte
 
 // Sell when:
@@ -12,26 +9,43 @@ strategy("Long Swing strategy (Weekly)", overlay=true)
 // - MACD en rouge + croisement
 // - Bougie rouge
 
+// Indicator settings
+volMaLength = 65
+stochLowerBand = 25
 
 // Stochastic RSI settings
 stochRsiLength = 10
 stochLength = 10
-kSmoothing = 5
-dSmoothing = 5
-stochLowerBand = 25
+stochRsi_kSmoothing = 5
+stochRsi_dSmoothing = 5
+
+// Stochastic settings
+stoch_kLength = 8
+stoch_kSmoothing = 5
+stoch_dSmooting = 2
 
 // Stochastic RSI calculation
-smoothK = input.int(kSmoothing, minval=1)
-smoothD = input.int(dSmoothing, minval=1)
+smoothK = input.int(stochRsi_kSmoothing, minval=1)
+smoothD = input.int(stochRsi_dSmoothing, minval=1)
 lengthRSI = input.int(stochRsiLength, minval=1)
 lengthStoch = input.int(stochLength, minval=1)
-rsi = rsi(close, lengthRSI)
-k = sma(stoch(rsi, rsi, rsi, lengthStoch), smoothK)
-d = sma(k, smoothD)
+rsi = ta.rsi(close, lengthRSI)
+stochRsi_k = ta.sma(ta.stoch(rsi, rsi, rsi, lengthStoch), smoothK)
+stochRsi_d = ta.sma(stochRsi_k, smoothD)
+buySignal_stochRsi = stochRsi_d < stochLowerBand
+
+// Stochastic calculation
+stoch_k = ta.sma(ta.stoch(close, high, low, stoch_kLength), stoch_kSmoothing)
+stoch_d = ta.sma(stoch_k, stoch_dSmooting)
+buySignal_stoch = ta.crossover(stoch_k, stoch_d) and stoch_k < stochLowerBand
+
+// Volume condition
+volMa = ta.sma(volume, volMaLength)
+buySignal_volume = volume > volMa
 
 // === Buy condition ===
 // Buy when Stochastic RSI (D) crosses below lower band
-buyCondition = d < stochLowerBand
+buyCondition = buySignal_stochRsi and buySignal_stoch and buySignal_volume
 
 // === Execute orders ===
 if buyCondition
