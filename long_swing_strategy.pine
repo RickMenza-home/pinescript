@@ -5,21 +5,25 @@ strategy("Long Swing strategy (Weekly)", overlay=true)
 // - Bougie verte
 
 // Sell when:
-// - RSI oversold + croisement de la MM
-// - MACD en rouge + croisement
 // - Bougie rouge
 
 // Indicator settings
 volMaLength = 65
+
+rsiLength = 14
+rsiUpperBand = 60
+
+macdFastLength = 12
+macdSlowLength = 26
+macdSignalLength = 9
+
 stochLowerBand = 25
 
-// Stochastic RSI settings
 stochRsiLength = 10
 stochLength = 10
 stochRsi_kSmoothing = 5
 stochRsi_dSmoothing = 5
 
-// Stochastic settings
 stoch_kLength = 8
 stoch_kSmoothing = 5
 stoch_dSmooting = 2
@@ -43,13 +47,41 @@ buySignal_stoch = ta.crossover(stoch_k, stoch_d) and stoch_k < stochLowerBand
 volMa = ta.sma(volume, volMaLength)
 buySignal_volume = volume > volMa
 
-// === Buy condition ===
-// Buy when Stochastic RSI (D) crosses below lower band
+// RSI Calculation
+rsi_value = ta.rsi(close, rsiLength)
+rsi_sma = ta.sma(rsi_value, rsiLength)
+upper_band = 60
+sellSignal_rsi = rsi_value < rsi_sma and rsi_value > rsiUpperBand
+
+// Calculate MACD Line and Signal Line using SMA
+fast_ma = ta.sma(close, macdFastLength)
+slow_ma = ta.sma(close, macdSlowLength)
+macd = fast_ma - slow_ma
+signal = ta.sma(macd, macdSignalLength)
+histogram = macd - signal
+sellSignal_macd = macd < signal and histogram < 0
+
+
+// === Buy/Sell conditions ===
 buyCondition = buySignal_stochRsi and buySignal_stoch and buySignal_volume
+sellCondition = sellSignal_macd and sellSignal_rsi
+
+// Determine if a position is still open
+// Entering position signal activated only if not already in a trade
+isPositionOpen = strategy.position_size > 0
+buySignal = buyCondition and isPositionOpen == false
+sellSignal = sellCondition and isPositionOpen == true
 
 // === Execute orders ===
-if buyCondition
-    strategy.entry("Buy", strategy.long)
+if buySignal
+    // Calculate the maximum quantity of shares/contracts (round down to ensure we don’t exceed the account balance)
+    price = close
+    maxShares = strategy.equity / price
+    maxSharesRounded = math.floor(maxShares)
+    strategy.entry("Buy", strategy.long, qty=maxSharesRounded)
+if sellSignal
+    strategy.close("Buy")
 
 // Plot buy and sell signals on the chart
-plotshape(series=buyCondition, location=location.belowbar, color=color.green, style=shape.labelup, title="Buy Signal", text="BUY")
+plotshape(series=buySignal, location=location.belowbar, color=color.green, style=shape.labelup, title="Buy Signal", text="BUY")
+plotshape(series=sellSignal, location=location.abovebar, color=color.red, style=shape.labeldown, title="Sell Signal", text="SELL")
