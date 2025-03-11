@@ -1,0 +1,41 @@
+//@version=5
+strategy("Long Swing strategy (Weekly)", overlay=true)
+
+// +++ Modify to buy:
+// - Stoch and Stoch RSI is under ...
+// - STCH croisement
+// - Volume
+// - Bougie verte
+
+// Sell when:
+// - RSI oversold + croisement de la MM
+// - MACD en rouge + croisement
+// - Bougie rouge
+
+
+// Stochastic RSI settings
+stochRsiLength = 10
+stochLength = 10
+kSmoothing = 5
+dSmoothing = 5
+stochLowerBand = 25
+
+// Stochastic RSI calculation
+smoothK = input.int(kSmoothing, minval=1)
+smoothD = input.int(dSmoothing, minval=1)
+lengthRSI = input.int(stochRsiLength, minval=1)
+lengthStoch = input.int(stochLength, minval=1)
+rsi = rsi(close, lengthRSI)
+k = sma(stoch(rsi, rsi, rsi, lengthStoch), smoothK)
+d = sma(k, smoothD)
+
+// === Buy condition ===
+// Buy when Stochastic RSI (D) crosses below lower band
+buyCondition = d < stochLowerBand
+
+// === Execute orders ===
+if buyCondition
+    strategy.entry("Buy", strategy.long)
+
+// Plot buy and sell signals on the chart
+plotshape(series=buyCondition, location=location.belowbar, color=color.green, style=shape.labelup, title="Buy Signal", text="BUY")
