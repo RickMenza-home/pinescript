@@ -22,7 +22,11 @@ sellSignal = sellCondition and isPositionOpen == true
 
 // Generate strategy entries and exits (if you're using this as a strategy)
 if buySignal
-    strategy.entry("Buy", strategy.long)
+    // Calculate the maximum quantity of shares/contracts (round down to ensure we don’t exceed the account balance)
+    price = close
+    maxShares = strategy.equity / price
+    maxSharesRounded = math.floor(maxShares)
+    strategy.entry("Buy", strategy.long, qty=maxSharesRounded)
 
 if sellSignal
     strategy.close("Buy")
