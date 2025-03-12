@@ -1,5 +1,5 @@
 //@version=5
-strategy("Long Swing strategy (Weekly)", overlay=true)
+strategy("Long Swing strategy (Weekly)", overlay=true, pyramiding=5, default_qty_type=strategy.percent_of_equity, default_qty_value=10)
 
 // +++ Modify to buy:
 // - Bougie verte
@@ -68,19 +68,21 @@ sellCondition = sellSignal_macd and sellSignal_rsi
 
 // Determine if a position is still open
 // Entering position signal activated only if not already in a trade
-isPositionOpen = strategy.position_size > 0
-buySignal = buyCondition and isPositionOpen == false
-sellSignal = sellCondition and isPositionOpen == true
+//isPositionOpen = strategy.position_size > 0
+buySignal = buyCondition //and isPositionOpen == false
+sellSignal = sellCondition //and isPositionOpen == true
+
+var float thirdQuity = strategy.equity / 3    // Init buying order
 
 // === Execute orders ===
 if buySignal
-    // Calculate the maximum quantity of shares/contracts (round down to ensure we don’t exceed the account balance)
     price = close
-    maxShares = strategy.equity / price
+    maxShares = thirdQuity / price
     maxSharesRounded = math.floor(maxShares)
     strategy.entry("Buy", strategy.long, qty=maxSharesRounded)
 if sellSignal
-    strategy.close("Buy")
+    strategy.close_all()
+    thirdQuity := strategy.equity / 3
 
 // Plot buy and sell signals on the chart
 plotshape(series=buySignal, location=location.belowbar, color=color.green, style=shape.labelup, title="Buy Signal", text="BUY")

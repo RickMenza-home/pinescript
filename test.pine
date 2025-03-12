@@ -1,0 +1,19 @@
+//@version=5
+strategy("Multiple Buy on Same Condition", overlay=true, default_qty_type=strategy.percent_of_equity, default_qty_value=10)
+
+// Allow multiple entries (set max pyramid level)
+strategy.risk.allow_entry_in(strategy.direction.long, max_entries=5)  // Allows up to 5 buys
+
+// Example Buy Condition: Price crosses above the 20 SMA
+smaFast = ta.sma(close, 20)
+buyCondition = ta.crossover(close, smaFast)
+
+// Execute multiple buys when the condition is met
+if buyCondition
+    strategy.entry("Buy", strategy.long, comment="Multiple Buy")
+
+// Optional Stop Loss and Take Profit
+stopLoss = 2  // 2% stop loss
+takeProfit = 5 // 5% take profit
+
+strategy.exit("Exit", from_entry="Buy", loss=close * stopLoss / 100, profit=close * takeProfit / 100)
