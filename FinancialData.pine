@@ -31,10 +31,14 @@ PriceBookRatio = close / BVPS
 // Price Earnings Ratio is calculated by dividing the current market price per share by the earnings per share for the last 12-month period.
 PriceEarningsRatio = close / EPS
 
-background_color = color.navy
+background_color = color.black
+frame_color = background_color
+border_color = background_color
+frame_width = 1
+border_width = 1
 text_align = text.align_left
 
-var myTable = table.new(position = position.top_right, columns = 2, rows = 8, bgcolor = background_color, border_width = 1, frame_color = color.white, frame_width = 3, border_color = color.white)
+var myTable = table.new(position = position.top_right, columns = 2, rows = 8, bgcolor = background_color, border_width = border_width, frame_color = frame_color, frame_width = frame_width, border_color = border_color)
 
 if(barstate.islast)
     table.cell(table_id = myTable, column = 0, row = 0, text = "Financial Term", text_color = color.white, bgcolor = background_color, text_halign = text_align)

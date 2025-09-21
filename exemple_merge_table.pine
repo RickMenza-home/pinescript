@@ -1,0 +1,23 @@
+// This source code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © IT_Wala
+
+//@version=5
+indicator("Merge Table Rows & Columns", overlay = true)
+
+background_color = color.navy
+
+var myTable = table.new(position = position.middle_center, columns = 3, rows = 3, bgcolor = background_color, border_width = 1, frame_color = color.white, frame_width = 3, border_color = color.white)
+
+table.cell(table_id = myTable, column = 0, row = 0, text = "", text_color = color.white, bgcolor = background_color)
+
+table.cell(table_id = myTable, column = 1, row = 0, text = "COLUMN MERGED", text_color = color.white, bgcolor = background_color)
+table.merge_cells(table_id = myTable, start_column = 1, start_row = 0, end_column = 2, end_row = 0)
+
+table.cell(table_id = myTable, column = 0, row = 1, text = "ROW MERGED", text_color = color.white, bgcolor = background_color)
+table.merge_cells(table_id = myTable, start_column = 0, start_row = 1, end_column = 0, end_row = 2)
+
+table.cell(table_id = myTable, column = 1, row = 1, text = "STOCK A", text_color = color.white, bgcolor = background_color)
+table.cell(table_id = myTable, column = 2, row = 1, text = "STOCK B", text_color = color.white, bgcolor = background_color)
+
+table.cell(table_id = myTable, column = 1, row = 2, text = "100", text_color = color.white, bgcolor = background_color)
+table.cell(table_id = myTable, column = 2, row = 2, text = "200", text_color = color.white, bgcolor = background_color)
