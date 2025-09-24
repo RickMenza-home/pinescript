@@ -113,6 +113,15 @@ getDeRatioColor() =>
         color := COLOR_GOOD
     color
 
+// EPS diluted one year growth
+EPS_diluted_one_year_growth = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_BASIC_ONE_YEAR_GROWTH", "FQ")
+
+// PRICE EARNING TO GROWTH RATIO
+// It is the P/E ratio (price-to-earnings ratio) divided by the growth rate.
+PEG = PriceEarningsRatio / EPS_diluted_one_year_growth
+getPegRatioColor() =>
+    COLOR_NEUTRAL
+
 // DIVIDEND
 dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FQ")
 getDividendColor() =>
@@ -147,34 +156,72 @@ getNetMarginColor() =>
         color := COLOR_WARNING
     color
 
+// EBIT
+EBIT = request.financial(syminfo.tickerid, "EBIT", "TTM")
+getEbitColor() =>
+    COLOR_NEUTRAL
+
+// EBITDA
+EBITDA = request.financial(syminfo.tickerid, "EBITDA", "TTM")
+getEbitdaColor() =>
+    COLOR_NEUTRAL
 
 // Display table
-var myTable = table.new(position = position.bottom_right, columns = 2, rows = 10, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
+var myTable = table.new(position = position.bottom_right, columns = 2, rows = 13, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
 if(barstate.islast)
     table.set_bgcolor(myTable, COLOR_BACKGROUND)
     table.set_frame_color(myTable, COLOR_FRAME)
     table.set_border_color(myTable, COLOR_BORDER)
 
-    table.cell(table_id = myTable, column = 0, row = 0, text = sector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.merge_cells(table_id = myTable, start_column = 0, start_row = 0, end_column = 1, end_row = 0)
+    titleRowIndex = 0
+    table.cell(table_id = myTable, column = 0, row = titleRowIndex, text = sector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 1, end_row = titleRowIndex)
+    titleRowIndex := titleRowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = titleRowIndex, text = subSector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 1, end_row = titleRowIndex)
 
-    table.cell(table_id = myTable, column = 0, row = 1, text = subSector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.merge_cells(table_id = myTable, start_column = 0, start_row = 1, end_column = 1, end_row = 1)
-
-    table.cell(table_id = myTable, column = 0, row = 2, text = "FLOAT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 3, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 4, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 5, text = "P/B", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 6, text = "D/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 7, text = "DIVIDEND", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 8, text = "GR. MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 0, row = 9, text = "NET MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex = titleRowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "FLOAT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "P/B", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "D/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "PEG", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "DIVIDEND", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "GR. MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "NET MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EBIT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EBITDA", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     
-    table.cell(table_id = myTable, column = 1, row = 2, text = str.tostring(truncate(floatShares))+"M", text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 3, text = str.tostring(truncate(PriceEarningsRatio)), text_color = COLOR_TEXT, bgcolor = getPeColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 4, text = "$"+str.tostring(truncate(EPS)), text_color = peTextColor, bgcolor = getEpsColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 5, text = str.tostring(truncate(PriceBookRatio)), text_color = COLOR_TEXT, bgcolor = getPriceBookRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 6, text = str.tostring(truncate(DE)), text_color = COLOR_TEXT, bgcolor = getDeRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 7, text = str.tostring(truncate(dividend))+"%", text_color = COLOR_TEXT, bgcolor = getDividendColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 8, text = str.tostring(truncate(grossMargin))+"%", text_color = COLOR_TEXT, bgcolor = getGrossMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = 9, text = str.tostring(truncate(netMargin))+"%", text_color = COLOR_TEXT, bgcolor = getNetMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := titleRowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(floatShares))+"M", text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(PriceEarningsRatio)), text_color = COLOR_TEXT, bgcolor = getPeColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = "$"+str.tostring(truncate(EPS)), text_color = peTextColor, bgcolor = getEpsColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(PriceBookRatio)), text_color = COLOR_TEXT, bgcolor = getPriceBookRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(DE)), text_color = COLOR_TEXT, bgcolor = getDeRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(PEG)), text_color = COLOR_TEXT, bgcolor = getPegRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(dividend))+"%", text_color = COLOR_TEXT, bgcolor = getDividendColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(grossMargin))+"%", text_color = COLOR_TEXT, bgcolor = getGrossMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(netMargin))+"%", text_color = COLOR_TEXT, bgcolor = getNetMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBIT)), text_color = COLOR_TEXT, bgcolor = getEbitColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBITDA)), text_color = COLOR_TEXT, bgcolor = getEbitdaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
