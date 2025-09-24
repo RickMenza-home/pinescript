@@ -1,0 +1,92 @@
+//@version=6
+indicator("Opaque Box Table", overlay=true)
+
+// -----------------
+// Colors & Styles
+// -----------------
+COLOR_BACKGROUND    = color.new(color.black, 0)  // fully opaque
+COLOR_BORDER        = color.white
+COLOR_TEXT          = color.white
+CELL_HEIGHT         = 1.5     // price units per row
+CELL_WIDTH          = 3       // bars per column width
+START_X             = bar_index - 5  // left-most bar index
+START_Y             = high + 5       // top price coordinate
+
+// Example data
+sector      = "Technology"
+subSector   = "Software"
+floatShares = 12.3
+PriceEarningsRatio = 28.7
+EPS         = 5.12
+PB          = 4.5
+dividend    = 1.2
+grossMargin = 55.8
+netMargin   = 22.3
+
+labelsText = array.from(
+    "SECTOR", "SUB-SECTOR", "FLOAT", "P/E", "EPS", "P/B", "DIVIDEND", "GR. MARGIN", "NET MARGIN"
+)
+
+valuesText = array.from(
+    sector, subSector,
+    str.tostring(truncate(floatShares))+"M",
+    str.tostring(truncate(PriceEarningsRatio)),
+    "$"+str.tostring(truncate(EPS)),
+    str.tostring(truncate(PB)),
+    str.tostring(truncate(dividend))+"%",
+    str.tostring(truncate(grossMargin))+"%",
+    str.tostring(truncate(netMargin))+"%"
+)
+
+// -----------------
+// Draw table with boxes + labels
+// -----------------
+if barstate.islast
+    for i = 0 to array.size(labelsText)-1
+        // calculate y positions for each row
+        topY    = START_Y - i * CELL_HEIGHT
+        bottomY = START_Y - (i+1) * CELL_HEIGHT
+
+        // left column box
+        box.new(
+            left = START_X,
+            top = topY,
+            right = START_X + CELL_WIDTH,
+            bottom = bottomY,
+            bgcolor = COLOR_BACKGROUND,
+            border_color = COLOR_BORDER,
+            border_width = 1
+        )
+
+        // right column box
+        box.new(
+            left = START_X + CELL_WIDTH,
+            top = topY,
+            right = START_X + 2*CELL_WIDTH,
+            bottom = bottomY,
+            bgcolor = COLOR_BACKGROUND,
+            border_color = COLOR_BORDER,
+            border_width = 1
+        )
+
+        // labels: left column
+        label.new(
+            x = START_X + 0.5*CELL_WIDTH,
+            y = topY - CELL_HEIGHT/2,
+            text = array.get(labelsText, i),
+            textcolor = COLOR_TEXT,
+            textalign = text.align_center,
+            style = label.style_label_center,
+            size = size.normal
+        )
+
+        // labels: right column
+        label.new(
+            x = START_X + 1.5*CELL_WIDTH,
+            y = topY - CELL_HEIGHT/2,
+            text = array.get(valuesText, i),
+            textcolor = COLOR_TEXT,
+            textalign = text.align_center,
+            style = label.style_label_center,
+            size = size.normal
+        )

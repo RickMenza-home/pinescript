@@ -1,58 +1,167 @@
-//@version=5
+//@version=6
 indicator("Financial Data", overlay = true, format = format.volume, precision = 2)
 
+// Constants
+COLOR_BACKGROUND = color.black
+COLOR_FRAME = COLOR_BACKGROUND
+COLOR_BORDER = COLOR_BACKGROUND
+COLOR_TEXT = color.white
+TABLE_BORDER_WIDTH = 1
+TABLE_FRAME_WIDTH = 1
+TABLE_KEY_TEXT_ALIGN = text.align_right
+TABLE_VALUE_TEXT_ALIGN = text.align_center
+TABLE_TITLE_TEXT_ALIGN = text.align_center
+TABLE_TEXT_SIZE = size.normal
+
+COLOR_ALERT = color.red
+COLOR_WARNING = color.orange
+COLOR_GOOD = color.green
+COLOR_NEUTRAL = COLOR_BACKGROUND
+
+FLOAT_ALERT = 50
+FLOAT_GOOD = 100
+
+PE_ALERT = 25
+PE_GOOD = 15
+PE_ALERT_LEVEL2 = 0
+
+EPS_ALERT = 0
+
+PB_ALERT = 3.5
+PB_GOOD = 1.5
+
+DIVIDEND_GOOD = 0
+
+GROSS_MARGIN_ALERT = 0
+GROSS_MARGIN_GOOD = 30
+
+NET_MARGIN_ALERT = 0
+NET_MARGIN_GOOD = 5
+
+// Function that around to 2 decimals
 truncate(num) =>
     factor = math.pow(10, 2)
     int(num * factor) / factor
 
-// MARKET CAP
-// Market capitalization is equal to the share price multiplied by the number of shares outstanding
-number_of_shares = request.financial(syminfo.tickerid, "TOTAL_SHARES_OUTSTANDING", "FQ")
-MarketCap = number_of_shares * close
+// SECTOR
+string sector = syminfo.sector
+string subSector = syminfo.industry
+
+// FLOAT
+floatShares = request.financial(syminfo.tickerid, "FLOAT_SHARES_OUTSTANDING", "FY") / 1000000
+getFloatColor() =>
+    color color = na
+    if(floatShares < FLOAT_ALERT)
+        color := COLOR_ALERT
+    else if(floatShares >= FLOAT_GOOD)
+        color := COLOR_GOOD
+    else
+        color := COLOR_WARNING
+    color
 
 // EARNING PER SHARE
 // Earnings per share (EPS) is a company's net profit divided by the number of common shares it has outstanding.
-EPS = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE", "TTM")
-
-// EARNING YEILD
-// The earnings yield is calculated by dividing earnings per share for the last 12-month period by the current market price per share.
-// Multiplying the result by 100 yields the Earnings Yield % value.
-EarningsYield = (EPS / close) * 100
-
-// BOOK VALUE PER SHARE
-// Book value per share (BVPS) is the ratio of equity available to common shareholders divided by the number of outstanding shares. 
-BVPS = request.financial(syminfo.tickerid, "BOOK_VALUE_PER_SHARE", "FQ")
-
-// PRICE BOOK RATIO
-// Price Book Ratio is calculated by dividing the price per share by the book value per share.
-PriceBookRatio = close / BVPS
+EPS = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "TTM")
+getEpsColor() =>
+    color color = na
+    if(EPS <= EPS_ALERT)
+        color := COLOR_ALERT
+    else
+        color := COLOR_GOOD
+    color
 
 // PRICE EARNING RATIO
 // Price Earnings Ratio is calculated by dividing the current market price per share by the earnings per share for the last 12-month period.
 PriceEarningsRatio = close / EPS
+peTextColor = PriceEarningsRatio < 0 ? COLOR_ALERT : COLOR_TEXT
+getPeColor() =>
+    color color = na
+    if(PriceEarningsRatio > PE_ALERT)
+        color := COLOR_ALERT
+    else if(PriceEarningsRatio < PE_ALERT_LEVEL2)
+        color := COLOR_BACKGROUND
+    else if(PriceEarningsRatio <= PE_GOOD)
+        color := COLOR_GOOD
+    else
+        color := COLOR_WARNING
+    color
 
-background_color = color.black
-frame_color = background_color
-border_color = background_color
-frame_width = 1
-border_width = 1
-text_align = text.align_left
+// BOOK VALUE PER SHARE
+// Book value per share (BVPS) is the ratio of equity available to common shareholders divided by the number of outstanding shares. 
+BVPS  = request.financial(syminfo.tickerid, "BOOK_VALUE_PER_SHARE", "FQ")
+// PRICE BOOK RATIO
+// Price Book Ratio is calculated by dividing the price per share by the book value per share.
+PriceBookRatio = close / BVPS
+getPriceBookRatioColor() =>
+    color color = na
+    if(PriceBookRatio > PB_ALERT)
+        color := COLOR_ALERT
+    else if(PriceBookRatio < PB_GOOD)
+        color := COLOR_GOOD
+    else
+        color := COLOR_WARNING
+    color
 
-var myTable = table.new(position = position.top_right, columns = 2, rows = 8, bgcolor = background_color, border_width = border_width, frame_color = frame_color, frame_width = frame_width, border_color = border_color)
+// DIVIDEND
+dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FQ")
+getDividendColor() =>
+    color color = na
+    if(dividend <= DIVIDEND_GOOD)
+        color := COLOR_NEUTRAL
+    else
+        color := COLOR_GOOD
+    color
 
+// GROSS MARGIN
+grossMargin = request.financial(syminfo.tickerid, "GROSS_MARGIN", "FQ")
+getGrossMarginColor() =>
+    color color = na
+    if(grossMargin < GROSS_MARGIN_ALERT)
+        color := COLOR_ALERT
+    else if(grossMargin >= GROSS_MARGIN_GOOD)
+        color := COLOR_GOOD
+    else
+        color := COLOR_WARNING
+    color
+
+// NET MARGIN
+netMargin = request.financial(syminfo.tickerid, "NET_MARGIN", "FQ")
+getNetMarginColor() =>
+    color color = na
+    if(grossMargin < NET_MARGIN_ALERT)
+        color := COLOR_ALERT
+    else if(grossMargin >= NET_MARGIN_GOOD)
+        color := COLOR_GOOD
+    else
+        color := COLOR_WARNING
+    color
+
+
+// Display table
+var myTable = table.new(position = position.bottom_right, columns = 2, rows = 9, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
 if(barstate.islast)
-    table.cell(table_id = myTable, column = 0, row = 0, text = "Financial Term", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 0, row = 1, text = "MARKET CAP", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 0, row = 2, text = "EARNING PER SHARE", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 0, row = 3, text = "EARNING YEILD", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 0, row = 4, text = "BOOK VALUE PER SHARE", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 0, row = 5, text = "PRICE BOOK RATIO", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 0, row = 6, text = "PRICE EARNING RATIO", text_color = color.white, bgcolor = background_color, text_halign = text_align)
+    table.set_bgcolor(myTable, COLOR_BACKGROUND)
+    table.set_frame_color(myTable, COLOR_FRAME)
+    table.set_border_color(myTable, COLOR_BORDER)
+
+    table.cell(table_id = myTable, column = 0, row = 0, text = sector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.merge_cells(table_id = myTable, start_column = 0, start_row = 0, end_column = 1, end_row = 0)
+
+    table.cell(table_id = myTable, column = 0, row = 1, text = subSector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.merge_cells(table_id = myTable, start_column = 0, start_row = 1, end_column = 1, end_row = 1)
+
+    table.cell(table_id = myTable, column = 0, row = 2, text = "FLOAT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 0, row = 3, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 0, row = 4, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 0, row = 5, text = "P/B", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 0, row = 6, text = "DIVIDEND", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 0, row = 7, text = "GR. MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 0, row = 8, text = "NET MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     
-    table.cell(table_id = myTable, column = 1, row = 0, text = "Value", text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 1, row = 1, text = str.tostring(truncate(MarketCap)), text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 1, row = 2, text = str.tostring(truncate(EPS)), text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 1, row = 3, text = str.tostring(truncate(EarningsYield)), text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 1, row = 4, text = str.tostring(truncate(BVPS)), text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 1, row = 5, text = str.tostring(truncate(PriceBookRatio)), text_color = color.white, bgcolor = background_color, text_halign = text_align)
-    table.cell(table_id = myTable, column = 1, row = 6, text = str.tostring(truncate(PriceEarningsRatio)), text_color = color.white, bgcolor = background_color, text_halign = text_align)
+    table.cell(table_id = myTable, column = 1, row = 2, text = str.tostring(truncate(floatShares))+"M", text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = 3, text = str.tostring(truncate(PriceEarningsRatio)), text_color = COLOR_TEXT, bgcolor = getPeColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = 4, text = "$"+str.tostring(truncate(EPS)), text_color = peTextColor, bgcolor = getEpsColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = 5, text = str.tostring(truncate(PriceBookRatio)), text_color = COLOR_TEXT, bgcolor = getPriceBookRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = 6, text = str.tostring(truncate(dividend))+"%", text_color = COLOR_TEXT, bgcolor = getDividendColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = 7, text = str.tostring(truncate(grossMargin))+"%", text_color = COLOR_TEXT, bgcolor = getGrossMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = 8, text = str.tostring(truncate(netMargin))+"%", text_color = COLOR_TEXT, bgcolor = getNetMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
