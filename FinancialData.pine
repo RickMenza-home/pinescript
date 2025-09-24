@@ -156,6 +156,11 @@ getNetMarginColor() =>
         color := COLOR_WARNING
     color
 
+// CASH FROM OPERATING_ACTIVITIES
+CFOA = request.financial(syminfo.tickerid, "CASH_F_OPERATING_ACTIVITIES", "TTM")
+getCfoaColor() =>
+    COLOR_NEUTRAL
+
 // EBIT
 EBIT = request.financial(syminfo.tickerid, "EBIT", "TTM")
 getEbitColor() =>
@@ -166,8 +171,23 @@ EBITDA = request.financial(syminfo.tickerid, "EBITDA", "TTM")
 getEbitdaColor() =>
     COLOR_NEUTRAL
 
+// RETURN ON ASSETS RATIO
+ROA = request.financial(syminfo.tickerid, "RETURN_ON_ASSETS", "FQ")
+getRoaColor() =>
+    COLOR_NEUTRAL
+
+// RETURN ON EQUITY RATIO
+ROE = request.financial(syminfo.tickerid, "RETURN_ON_EQUITY", "FQ")
+getRoeColor() =>
+    COLOR_NEUTRAL
+
+// RETURN ON INVESTED CAPITAL RATIO
+ROIC = request.financial(syminfo.tickerid, "RETURN_ON_INVESTED_CAPITAL", "FQ")
+getRoicColor() =>
+    COLOR_NEUTRAL
+
 // Display table
-var myTable = table.new(position = position.bottom_right, columns = 2, rows = 13, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
+var myTable = table.new(position = position.bottom_right, columns = 2, rows = 17, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
 if(barstate.islast)
     table.set_bgcolor(myTable, COLOR_BACKGROUND)
     table.set_frame_color(myTable, COLOR_FRAME)
@@ -199,9 +219,17 @@ if(barstate.islast)
     rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 0, row = rowIndex, text = "NET MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "CASH FLOW", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EBIT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EBITDA", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "ROA", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "ROE", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "ROIC", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     
     rowIndex := titleRowIndex + 1
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(floatShares))+"M", text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
@@ -222,6 +250,14 @@ if(barstate.islast)
     rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(netMargin))+"%", text_color = COLOR_TEXT, bgcolor = getNetMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(CFOA)), text_color = COLOR_TEXT, bgcolor = getCfoaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBIT)), text_color = COLOR_TEXT, bgcolor = getEbitColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBITDA)), text_color = COLOR_TEXT, bgcolor = getEbitdaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(ROA)), text_color = COLOR_TEXT, bgcolor = getRoaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(ROE)), text_color = COLOR_TEXT, bgcolor = getRoeColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex := rowIndex + 1
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(ROIC)), text_color = COLOR_TEXT, bgcolor = getRoicColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
