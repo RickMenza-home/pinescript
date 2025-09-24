@@ -157,8 +157,8 @@ getNetMarginColor() =>
     color
 
 // CASH FROM OPERATING_ACTIVITIES
-CFOA = request.financial(syminfo.tickerid, "CASH_F_OPERATING_ACTIVITIES", "TTM")
-getCfoaColor() =>
+cashFlow = request.financial(syminfo.tickerid, "FREE_CASH_FLOW", "TTM")
+getCashFlowColor() =>
     COLOR_NEUTRAL
 
 // EBIT
@@ -250,7 +250,7 @@ if(barstate.islast)
     rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(netMargin))+"%", text_color = COLOR_TEXT, bgcolor = getNetMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(CFOA)), text_color = COLOR_TEXT, bgcolor = getCfoaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(cashFlow)), text_color = COLOR_TEXT, bgcolor = getCashFlowColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBIT)), text_color = COLOR_TEXT, bgcolor = getEbitColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     rowIndex := rowIndex + 1
