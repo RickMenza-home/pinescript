@@ -45,6 +45,26 @@ truncate(num) =>
     factor = math.pow(10, 2)
     int(num * factor) / factor
 
+// Simulate map for all financial data table
+ids = array.new<int>()
+stringNames = array.new<string>()
+stringValues = array.new<string>()
+// Functions to add key values to map
+f_add(id, name, value) =>
+    array.push(ids, id)
+    array.push(stringValues, value)
+    array.push(stringNames, name)
+// Functions to get values from map by id
+f_get(id) =>
+    //name = ""
+    //value = ""
+    //for i = 0 to array.size(ids) - 1
+        //if array.get(ids, i) == i
+            //name := array.get(stringNames, id)
+            //value:= array.get(stringValues, id)
+    //[name, value]
+    [array.get(stringNames, id), array.get(stringValues, id)]
+
 // SECTOR
 string sector = syminfo.sector
 string subSector = syminfo.industry
@@ -60,6 +80,8 @@ getFloatColor() =>
     else
         color := COLOR_WARNING
     color
+stringName_floatShares = "FLOAT"
+stringValue_floatShares = str.tostring(truncate(floatShares))+"M"
 
 // EARNING PER SHARE
 // Earnings per share (EPS) is a company's net profit divided by the number of common shares it has outstanding.
@@ -71,6 +93,8 @@ getEpsColor() =>
     else
         color := COLOR_GOOD
     color
+stringName_EPS = "EPS"
+stringValue_EPS = "$"+str.tostring(truncate(EPS))
 
 // PRICE EARNING RATIO
 // Price Earnings Ratio is calculated by dividing the current market price per share by the earnings per share for the last 12-month period.
@@ -87,6 +111,8 @@ getPeColor() =>
     else
         color := COLOR_WARNING
     color
+stringName_PE = "P/E"
+stringValue_PE = str.tostring(truncate(PriceEarningsRatio))
 
 // BOOK VALUE PER SHARE
 // Book value per share (BVPS) is the ratio of equity available to common shareholders divided by the number of outstanding shares. 
@@ -103,6 +129,8 @@ getPriceBookRatioColor() =>
     else
         color := COLOR_WARNING
     color
+stringName_PB = "P/B"
+stringValue_PB = str.tostring(truncate(PriceBookRatio))
 
 // DEBT TO EQUITY RATIO
 // Debt to equity ratio is the ratio of Total debt to Total equity
@@ -112,6 +140,8 @@ getDeRatioColor() =>
     if(DE < DE_GOOD)
         color := COLOR_GOOD
     color
+stringName_DE = "D/E"
+stringValue_DE = str.tostring(truncate(DE))
 
 // EPS diluted one year growth
 EPS_diluted_one_year_growth = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_BASIC_ONE_YEAR_GROWTH", "FQ")
@@ -121,6 +151,8 @@ EPS_diluted_one_year_growth = request.financial(syminfo.tickerid, "EARNINGS_PER_
 PEG = PriceEarningsRatio / EPS_diluted_one_year_growth
 getPegRatioColor() =>
     COLOR_NEUTRAL
+stringName_PEG = "PEG"
+stringValue_PEG = str.tostring(truncate(PEG))
 
 // DIVIDEND
 dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FQ")
@@ -131,6 +163,8 @@ getDividendColor() =>
     else
         color := COLOR_GOOD
     color
+stringName_dividend = "DIVIDEND"
+stringValue_dividend = str.tostring(truncate(dividend))+"%"
 
 // GROSS MARGIN
 grossMargin = request.financial(syminfo.tickerid, "GROSS_MARGIN", "FQ")
@@ -143,6 +177,8 @@ getGrossMarginColor() =>
     else
         color := COLOR_WARNING
     color
+stringName_grossMargin = "GR. MARGIN"
+stringValue_grossMargin = str.tostring(truncate(grossMargin))+"%"
 
 // NET MARGIN
 netMargin = request.financial(syminfo.tickerid, "NET_MARGIN", "FQ")
@@ -155,39 +191,91 @@ getNetMarginColor() =>
     else
         color := COLOR_WARNING
     color
+stringName_netMargin = "NET MARGIN"
+stringValue_netMargin = str.tostring(truncate(netMargin))+"%"
 
 // CASH FROM OPERATING_ACTIVITIES
 cashFlow = request.financial(syminfo.tickerid, "FREE_CASH_FLOW", "TTM")
 getCashFlowColor() =>
     COLOR_NEUTRAL
+stringName_cashFlow = "CASH FLOW"
+stringValue_cashFlow = str.tostring(truncate(cashFlow))
 
 // EBIT
 EBIT = request.financial(syminfo.tickerid, "EBIT", "TTM")
 getEbitColor() =>
     COLOR_NEUTRAL
+stringName_EBIT = "EBIT"
+stringValue_EBIT = str.tostring(truncate(EBIT))
 
 // EBITDA
 EBITDA = request.financial(syminfo.tickerid, "EBITDA", "TTM")
 getEbitdaColor() =>
     COLOR_NEUTRAL
+stringName_EBITDA = "EBITDA"
+stringValue_EBITDA = str.tostring(truncate(EBITDA))
 
 // RETURN ON ASSETS RATIO
 ROA = request.financial(syminfo.tickerid, "RETURN_ON_ASSETS", "FQ")
 getRoaColor() =>
     COLOR_NEUTRAL
+stringName_ROA = "ROA"
+stringValue_ROA = str.tostring(truncate(ROA))
 
 // RETURN ON EQUITY RATIO
 ROE = request.financial(syminfo.tickerid, "RETURN_ON_EQUITY", "FQ")
 getRoeColor() =>
     COLOR_NEUTRAL
+stringName_ROE = "ROE"
+stringValue_ROE = str.tostring(truncate(ROE))
 
 // RETURN ON INVESTED CAPITAL RATIO
 ROIC = request.financial(syminfo.tickerid, "RETURN_ON_INVESTED_CAPITAL", "FQ")
 getRoicColor() =>
     COLOR_NEUTRAL
+stringName_ROIC = "ROIC"
+stringValue_ROIC = str.tostring(truncate(ROIC))
+
+// Stuff all values into map
+ID_FLOAT = 0
+ID_PE = 1
+ID_EPS = 2
+ID_PB = 3
+ID_DE = 4
+ID_PEG = 5
+ID_DIVIDEND = 6
+ID_GROSS_MARGIN = 7
+ID_NET_MARGIN = 8
+ID_CASH_FLOW = 9
+ID_EBIT = 10
+ID_EBITDA = 11
+ID_ROA = 12
+ID_ROE = 13
+ID_ROIC = 14
+NUMBER_OF_IDS  = 15
+
+f_add(ID_FLOAT, stringName_floatShares, stringValue_floatShares)
+f_add(ID_PE, stringName_PE, stringValue_PE)
+f_add(ID_EPS, stringName_EPS, stringValue_EPS)
+f_add(ID_PB, stringName_PB, stringValue_PB)
+f_add(ID_DE, stringName_DE, stringValue_DE)
+f_add(ID_PEG, stringName_PEG, stringValue_PEG)
+f_add(ID_DIVIDEND, stringName_dividend, stringValue_dividend)
+f_add(ID_GROSS_MARGIN, stringName_grossMargin, stringValue_grossMargin)
+f_add(ID_NET_MARGIN, stringName_netMargin, stringValue_netMargin)
+f_add(ID_CASH_FLOW, stringName_cashFlow, stringValue_cashFlow)
+f_add(ID_EBIT, stringName_EBIT, stringValue_EBIT)
+f_add(ID_EBITDA, stringName_EBITDA, stringValue_EBITDA)
+f_add(ID_ROA, stringName_ROA, stringValue_ROA)
+f_add(ID_ROE, stringName_ROE, stringValue_ROE)
+f_add(ID_ROIC, stringName_ROIC, stringValue_ROIC)
+
+NUMBER_OF_TABLE_TITLES = 2
+TOTAL_NUMBER_OF_ROWS = NUMBER_OF_TABLE_TITLES + NUMBER_OF_IDS
+TOTAL_NUMBER_OF_COLUMNS = 2
 
 // Display table
-var myTable = table.new(position = position.bottom_right, columns = 2, rows = 17, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
+var myTable = table.new(position = position.bottom_right, columns = 2, rows = TOTAL_NUMBER_OF_ROWS, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
 if(barstate.islast)
     table.set_bgcolor(myTable, COLOR_BACKGROUND)
     table.set_frame_color(myTable, COLOR_FRAME)
@@ -200,64 +288,17 @@ if(barstate.islast)
     table.cell(table_id = myTable, column = 0, row = titleRowIndex, text = subSector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 1, end_row = titleRowIndex)
 
-    rowIndex = titleRowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "FLOAT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "P/B", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "D/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "PEG", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "DIVIDEND", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "GR. MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "NET MARGIN", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "CASH FLOW", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EBIT", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "EBITDA", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "ROA", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "ROE", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "ROIC", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    
-    rowIndex := titleRowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(floatShares))+"M", text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(PriceEarningsRatio)), text_color = COLOR_TEXT, bgcolor = getPeColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = "$"+str.tostring(truncate(EPS)), text_color = peTextColor, bgcolor = getEpsColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(PriceBookRatio)), text_color = COLOR_TEXT, bgcolor = getPriceBookRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(DE)), text_color = COLOR_TEXT, bgcolor = getDeRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(PEG)), text_color = COLOR_TEXT, bgcolor = getPegRatioColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(dividend))+"%", text_color = COLOR_TEXT, bgcolor = getDividendColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(grossMargin))+"%", text_color = COLOR_TEXT, bgcolor = getGrossMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(netMargin))+"%", text_color = COLOR_TEXT, bgcolor = getNetMarginColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(cashFlow)), text_color = COLOR_TEXT, bgcolor = getCashFlowColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBIT)), text_color = COLOR_TEXT, bgcolor = getEbitColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(EBITDA)), text_color = COLOR_TEXT, bgcolor = getEbitdaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(ROA)), text_color = COLOR_TEXT, bgcolor = getRoaColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(ROE)), text_color = COLOR_TEXT, bgcolor = getRoeColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    rowIndex := rowIndex + 1
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(ROIC)), text_color = COLOR_TEXT, bgcolor = getRoicColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    //for columnIndex = 0 to TOTAL_NUMBER_OF_COLUMNS - 1
+      //  for rowIndex = titleRowIndex + 1 to NUMBER_OF_TABLE_TITLES
+        //    [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
+          //  if(columnIndex == 0)
+            //    table.cell(table_id = myTable, column = columnIndex, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+           // else
+             //   table.cell(table_id = myTable, column = columnIndex, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
+        [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
+        table.cell(table_id = myTable, column = 0, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
+        [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
+        table.cell(table_id = myTable, column = 1, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
