@@ -46,24 +46,17 @@ truncate(num) =>
     int(num * factor) / factor
 
 // Simulate map for all financial data table
-ids = array.new<int>()
-stringNames = array.new<string>()
-stringValues = array.new<string>()
+stringNamesArray = array.new<string>()
+stringValuesArray = array.new<string>()
+colorArray = array.new<color>()
 // Functions to add key values to map
-f_add(id, name, value) =>
-    array.push(ids, id)
-    array.push(stringValues, value)
-    array.push(stringNames, name)
+f_add(name, value, valueColor) =>
+    array.push(stringValuesArray, value)
+    array.push(stringNamesArray, name)
+    array.push(colorArray, valueColor)
 // Functions to get values from map by id
 f_get(id) =>
-    //name = ""
-    //value = ""
-    //for i = 0 to array.size(ids) - 1
-        //if array.get(ids, i) == i
-            //name := array.get(stringNames, id)
-            //value:= array.get(stringValues, id)
-    //[name, value]
-    [array.get(stringNames, id), array.get(stringValues, id)]
+    [array.get(stringNamesArray, id), array.get(stringValuesArray, id), array.get(colorArray, id)]
 
 // SECTOR
 string sector = syminfo.sector
@@ -71,11 +64,11 @@ string subSector = syminfo.industry
 
 // FLOAT
 floatShares = request.financial(syminfo.tickerid, "FLOAT_SHARES_OUTSTANDING", "FY") / 1000000
-getFloatColor() =>
+getFloatColor(value) =>
     color color = na
-    if(floatShares < FLOAT_ALERT)
+    if(value < FLOAT_ALERT)
         color := COLOR_ALERT
-    else if(floatShares >= FLOAT_GOOD)
+    else if(value >= FLOAT_GOOD)
         color := COLOR_GOOD
     else
         color := COLOR_WARNING
@@ -86,9 +79,9 @@ stringValue_floatShares = str.tostring(truncate(floatShares))+"M"
 // EARNING PER SHARE
 // Earnings per share (EPS) is a company's net profit divided by the number of common shares it has outstanding.
 EPS = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "TTM")
-getEpsColor() =>
+getEpsColor(value) =>
     color color = na
-    if(EPS <= EPS_ALERT)
+    if(value <= EPS_ALERT)
         color := COLOR_ALERT
     else
         color := COLOR_GOOD
@@ -100,13 +93,13 @@ stringValue_EPS = "$"+str.tostring(truncate(EPS))
 // Price Earnings Ratio is calculated by dividing the current market price per share by the earnings per share for the last 12-month period.
 PriceEarningsRatio = close / EPS
 peTextColor = PriceEarningsRatio < 0 ? COLOR_ALERT : COLOR_TEXT
-getPeColor() =>
+getPeColor(value) =>
     color color = na
-    if(PriceEarningsRatio > PE_ALERT)
+    if(value > PE_ALERT)
         color := COLOR_ALERT
-    else if(PriceEarningsRatio < PE_ALERT_LEVEL2)
+    else if(value < PE_ALERT_LEVEL2)
         color := COLOR_BACKGROUND
-    else if(PriceEarningsRatio <= PE_GOOD)
+    else if(value <= PE_GOOD)
         color := COLOR_GOOD
     else
         color := COLOR_WARNING
@@ -120,11 +113,11 @@ BVPS  = request.financial(syminfo.tickerid, "BOOK_VALUE_PER_SHARE", "FQ")
 // PRICE BOOK RATIO
 // Price Book Ratio is calculated by dividing the price per share by the book value per share.
 PriceBookRatio = close / BVPS
-getPriceBookRatioColor() =>
+getPriceBookRatioColor(value) =>
     color color = na
-    if(PriceBookRatio > PB_ALERT)
+    if(value > PB_ALERT)
         color := COLOR_ALERT
-    else if(PriceBookRatio < PB_GOOD)
+    else if(value < PB_GOOD)
         color := COLOR_GOOD
     else
         color := COLOR_WARNING
@@ -135,9 +128,9 @@ stringValue_PB = str.tostring(truncate(PriceBookRatio))
 // DEBT TO EQUITY RATIO
 // Debt to equity ratio is the ratio of Total debt to Total equity
 DE = request.financial(syminfo.tickerid, "DEBT_TO_EQUITY", "FQ")
-getDeRatioColor() =>
+getDeRatioColor(value) =>
     color color = COLOR_NEUTRAL
-    if(DE < DE_GOOD)
+    if(value < DE_GOOD)
         color := COLOR_GOOD
     color
 stringName_DE = "D/E"
@@ -156,9 +149,9 @@ stringValue_PEG = str.tostring(truncate(PEG))
 
 // DIVIDEND
 dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FQ")
-getDividendColor() =>
+getDividendColor(value) =>
     color color = na
-    if(dividend <= DIVIDEND_GOOD)
+    if(value <= DIVIDEND_GOOD)
         color := COLOR_NEUTRAL
     else
         color := COLOR_GOOD
@@ -168,11 +161,11 @@ stringValue_dividend = str.tostring(truncate(dividend))+"%"
 
 // GROSS MARGIN
 grossMargin = request.financial(syminfo.tickerid, "GROSS_MARGIN", "FQ")
-getGrossMarginColor() =>
+getGrossMarginColor(value) =>
     color color = na
-    if(grossMargin < GROSS_MARGIN_ALERT)
+    if(value < GROSS_MARGIN_ALERT)
         color := COLOR_ALERT
-    else if(grossMargin >= GROSS_MARGIN_GOOD)
+    else if(value >= GROSS_MARGIN_GOOD)
         color := COLOR_GOOD
     else
         color := COLOR_WARNING
@@ -182,11 +175,11 @@ stringValue_grossMargin = str.tostring(truncate(grossMargin))+"%"
 
 // NET MARGIN
 netMargin = request.financial(syminfo.tickerid, "NET_MARGIN", "FQ")
-getNetMarginColor() =>
+getNetMarginColor(value) =>
     color color = na
-    if(grossMargin < NET_MARGIN_ALERT)
+    if(value < NET_MARGIN_ALERT)
         color := COLOR_ALERT
-    else if(grossMargin >= NET_MARGIN_GOOD)
+    else if(value >= NET_MARGIN_GOOD)
         color := COLOR_GOOD
     else
         color := COLOR_WARNING
@@ -237,39 +230,23 @@ stringName_ROIC = "ROIC"
 stringValue_ROIC = str.tostring(truncate(ROIC))
 
 // Stuff all values into map
-ID_FLOAT = 0
-ID_PE = 1
-ID_EPS = 2
-ID_PB = 3
-ID_DE = 4
-ID_PEG = 5
-ID_DIVIDEND = 6
-ID_GROSS_MARGIN = 7
-ID_NET_MARGIN = 8
-ID_CASH_FLOW = 9
-ID_EBIT = 10
-ID_EBITDA = 11
-ID_ROA = 12
-ID_ROE = 13
-ID_ROIC = 14
+f_add(stringName_floatShares, stringValue_floatShares, getFloatColor(floatShares))
+f_add(stringName_PE, stringValue_PE, getPeColor(PriceEarningsRatio))
+f_add(stringName_EPS, stringValue_EPS, getEpsColor(EPS))
+f_add(stringName_PB, stringValue_PB, getPriceBookRatioColor(PriceBookRatio))
+f_add(stringName_DE, stringValue_DE, getDeRatioColor(DE))
+f_add(stringName_PEG, stringValue_PEG, getPegRatioColor())
+f_add(stringName_dividend, stringValue_dividend, getDividendColor(dividend))
+f_add(stringName_grossMargin, stringValue_grossMargin, getGrossMarginColor(grossMargin))
+f_add(stringName_netMargin, stringValue_netMargin, getNetMarginColor(netMargin))
+f_add(stringName_cashFlow, stringValue_cashFlow, getCashFlowColor())
+f_add(stringName_EBIT, stringValue_EBIT, getEbitColor())
+f_add(stringName_EBITDA, stringValue_EBITDA, getEbitdaColor())
+f_add(stringName_ROA, stringValue_ROA, getRoaColor())
+f_add(stringName_ROE, stringValue_ROE, getRoeColor())
+f_add(stringName_ROIC, stringValue_ROIC, getRoicColor())
+
 NUMBER_OF_IDS  = 15
-
-f_add(ID_FLOAT, stringName_floatShares, stringValue_floatShares)
-f_add(ID_PE, stringName_PE, stringValue_PE)
-f_add(ID_EPS, stringName_EPS, stringValue_EPS)
-f_add(ID_PB, stringName_PB, stringValue_PB)
-f_add(ID_DE, stringName_DE, stringValue_DE)
-f_add(ID_PEG, stringName_PEG, stringValue_PEG)
-f_add(ID_DIVIDEND, stringName_dividend, stringValue_dividend)
-f_add(ID_GROSS_MARGIN, stringName_grossMargin, stringValue_grossMargin)
-f_add(ID_NET_MARGIN, stringName_netMargin, stringValue_netMargin)
-f_add(ID_CASH_FLOW, stringName_cashFlow, stringValue_cashFlow)
-f_add(ID_EBIT, stringName_EBIT, stringValue_EBIT)
-f_add(ID_EBITDA, stringName_EBITDA, stringValue_EBITDA)
-f_add(ID_ROA, stringName_ROA, stringValue_ROA)
-f_add(ID_ROE, stringName_ROE, stringValue_ROE)
-f_add(ID_ROIC, stringName_ROIC, stringValue_ROIC)
-
 NUMBER_OF_TABLE_TITLES = 2
 TOTAL_NUMBER_OF_ROWS = NUMBER_OF_TABLE_TITLES + NUMBER_OF_IDS
 TOTAL_NUMBER_OF_COLUMNS = 2
@@ -288,19 +265,10 @@ if(barstate.islast)
     table.cell(table_id = myTable, column = 0, row = titleRowIndex, text = subSector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 1, end_row = titleRowIndex)
 
-    //for columnIndex = 0 to TOTAL_NUMBER_OF_COLUMNS - 1
-      //  for rowIndex = titleRowIndex + 1 to NUMBER_OF_TABLE_TITLES
-        //    [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
-          //  if(columnIndex == 0)
-            //    table.cell(table_id = myTable, column = columnIndex, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-           // else
-             //   table.cell(table_id = myTable, column = columnIndex, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-
-
     for columnIndex = 0 to TOTAL_NUMBER_OF_COLUMNS - 1        
         for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
-            [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
+            [name, value, colorValue] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
             if(columnIndex == 0)
                 table.cell(table_id = myTable, column = 0, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
             else
-                table.cell(table_id = myTable, column = 1, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+                table.cell(table_id = myTable, column = 1, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = colorValue, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
