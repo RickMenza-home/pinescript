@@ -296,9 +296,11 @@ if(barstate.islast)
            // else
              //   table.cell(table_id = myTable, column = columnIndex, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
-        [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
-        table.cell(table_id = myTable, column = 0, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
-        [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
-        table.cell(table_id = myTable, column = 1, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    for columnIndex = 0 to TOTAL_NUMBER_OF_COLUMNS - 1        
+        for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
+            [name, value] = f_get(rowIndex - NUMBER_OF_TABLE_TITLES)
+            if(columnIndex == 0)
+                table.cell(table_id = myTable, column = 0, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            else
+                table.cell(table_id = myTable, column = 1, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = getFloatColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
