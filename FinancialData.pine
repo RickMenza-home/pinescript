@@ -168,7 +168,7 @@ EPS_diluted_one_year_growth = request.financial(syminfo.tickerid, "EARNINGS_PER_
 PEG = PriceEarningsRatio / EPS_diluted_one_year_growth
 getPegRatioColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value <= PE_GOOD)
+    if(value <= PEG_GOOD)
         color := COLOR_GOOD
     else
         color := COLOR_ALERT
