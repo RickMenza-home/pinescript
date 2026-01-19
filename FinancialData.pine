@@ -31,11 +31,13 @@ EPS_ALERT = 0
 
 PB_ALERT = 3.5
 PB_GOOD = 1.5
+PB_ALERT_LEVEL2 = 0
 
 DE_ALERT = 2
 DE_GOOD = 1
 
 PEG_GOOD = 1
+PEG_ALERT = 0
 
 DIVIDEND_GOOD = 0
 
@@ -86,12 +88,13 @@ string subSector = syminfo.industry
 floatShares = request.financial(syminfo.tickerid, "FLOAT_SHARES_OUTSTANDING", "FY") / MILLION
 getFloatColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < FLOAT_ALERT)
-        color := COLOR_ALERT
-    else if(value >= FLOAT_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value < FLOAT_ALERT)
+            color := COLOR_ALERT
+        else if(value >= FLOAT_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_floatShares = "FLOAT"
 stringValue_floatShares = str.tostring(truncate(floatShares)) + "M"
@@ -101,10 +104,11 @@ stringValue_floatShares = str.tostring(truncate(floatShares)) + "M"
 EPS = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "TTM")
 getEpsColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value <= EPS_ALERT)
-        color := COLOR_ALERT
-    else
-        color := COLOR_GOOD
+    if not na(value)
+        if(value <= EPS_ALERT)
+            color := COLOR_ALERT
+        else
+            color := COLOR_GOOD
     color
 stringName_EPS = "EPS"
 stringValue_EPS = "$"+str.tostring(truncate(EPS))
@@ -112,17 +116,17 @@ stringValue_EPS = "$"+str.tostring(truncate(EPS))
 // PRICE EARNING RATIO
 // Price Earnings Ratio is calculated by dividing the current market price per share by the earnings per share for the last 12-month period.
 PriceEarningsRatio = close / EPS
-peTextColor = PriceEarningsRatio < 0 ? COLOR_ALERT : COLOR_TEXT
 getPeColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value > PE_ALERT)
-        color := COLOR_ALERT
-    else if(value < PE_ALERT_LEVEL2)
-        color := COLOR_BACKGROUND
-    else if(value <= PE_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value > PE_ALERT)
+            color := COLOR_ALERT
+        else if(value < PE_ALERT_LEVEL2)
+            color := COLOR_ALERT
+        else if(value <= PE_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_PE = "P/E ratio"
 stringValue_PE = str.tostring(truncate(PriceEarningsRatio))
@@ -135,12 +139,15 @@ BVPS  = request.financial(syminfo.tickerid, "BOOK_VALUE_PER_SHARE", "FQ")
 PriceBookRatio = close / BVPS
 getPriceBookRatioColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value > PB_ALERT)
-        color := COLOR_ALERT
-    else if(value < PB_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value > PB_ALERT)
+            color := COLOR_ALERT
+        else if(value < PB_ALERT_LEVEL2)
+            color := COLOR_ALERT
+        else if(value < PB_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_PB = "P/B ratio"
 stringValue_PB = str.tostring(truncate(PriceBookRatio))
@@ -150,12 +157,13 @@ stringValue_PB = str.tostring(truncate(PriceBookRatio))
 DE = request.financial(syminfo.tickerid, "DEBT_TO_EQUITY", "FQ")
 getDeRatioColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value >= DE_ALERT)
-        color := COLOR_ALERT
-    else if(value < DE_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value >= DE_ALERT)
+            color := COLOR_ALERT
+        else if(value < DE_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_DE = "D/E ratio"
 stringValue_DE = str.tostring(truncate(DE))
@@ -168,10 +176,13 @@ EPS_diluted_one_year_growth = request.financial(syminfo.tickerid, "EARNINGS_PER_
 PEG = PriceEarningsRatio / EPS_diluted_one_year_growth
 getPegRatioColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value <= PEG_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_ALERT
+    if not na(value)
+        if(value < PEG_ALERT)
+            color := COLOR_ALERT
+        else if(value <= PEG_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_ALERT
     color
 stringName_PEG = "PEG ratio"
 stringValue_PEG = str.tostring(truncate(PEG))
@@ -180,10 +191,11 @@ stringValue_PEG = str.tostring(truncate(PEG))
 dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FQ")
 getDividendColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value <= DIVIDEND_GOOD)
-        color := COLOR_NEUTRAL
-    else
-        color := COLOR_GOOD
+    if not na(value)
+        if(value <= DIVIDEND_GOOD)
+            color := COLOR_NEUTRAL
+        else
+            color := COLOR_GOOD
     color
 stringName_dividend = "DIVIDEND"
 stringValue_dividend = str.tostring(truncate(dividend)) + "%"
@@ -192,12 +204,13 @@ stringValue_dividend = str.tostring(truncate(dividend)) + "%"
 grossMargin = request.financial(syminfo.tickerid, "GROSS_MARGIN", "FQ")
 getGrossMarginColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < GROSS_MARGIN_ALERT)
-        color := COLOR_ALERT
-    else if(value >= GROSS_MARGIN_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value < GROSS_MARGIN_ALERT)
+            color := COLOR_ALERT
+        else if(value >= GROSS_MARGIN_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_grossMargin = "GR. MARGIN"
 stringValue_grossMargin = str.tostring(truncate(grossMargin)) + "%"
@@ -206,12 +219,13 @@ stringValue_grossMargin = str.tostring(truncate(grossMargin)) + "%"
 netMargin = request.financial(syminfo.tickerid, "NET_MARGIN", "FQ")
 getNetMarginColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < NET_MARGIN_ALERT)
-        color := COLOR_ALERT
-    else if(value >= NET_MARGIN_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value < NET_MARGIN_ALERT)
+            color := COLOR_ALERT
+        else if(value >= NET_MARGIN_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_netMargin = "NET MARGIN"
 stringValue_netMargin = str.tostring(truncate(netMargin)) + "%"
@@ -220,10 +234,12 @@ stringValue_netMargin = str.tostring(truncate(netMargin)) + "%"
 cashFlow = request.financial(syminfo.tickerid, "FREE_CASH_FLOW", "TTM") / MILLION
 getCashFlowColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < CASH_FLOW_GOOD)
-        color := COLOR_ALERT
-    else
-        color := COLOR_GOOD
+    if not na(value)
+        if(value < CASH_FLOW_GOOD)
+            color := COLOR_ALERT
+        else
+            color := COLOR_GOOD
+    color
     
 stringName_cashFlow = "CASH FLOW"
 stringValue_cashFlow = str.tostring(truncate(cashFlow)) + "M"
@@ -232,10 +248,12 @@ stringValue_cashFlow = str.tostring(truncate(cashFlow)) + "M"
 EBIT = request.financial(syminfo.tickerid, "EBIT", "TTM") / MILLION
 getEbitColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < CASH_FLOW_GOOD)
-        color := COLOR_ALERT
-    else
-        color := COLOR_GOOD
+    if not na(value)
+        if(value < CASH_FLOW_GOOD)
+            color := COLOR_ALERT
+        else
+            color := COLOR_GOOD
+    color
 stringName_EBIT = "EBIT"
 stringValue_EBIT = str.tostring(truncate(EBIT)) + "M"
 
@@ -243,10 +261,12 @@ stringValue_EBIT = str.tostring(truncate(EBIT)) + "M"
 EBITDA = request.financial(syminfo.tickerid, "EBITDA", "TTM") / MILLION
 getEbitdaColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < CASH_FLOW_GOOD)
-        color := COLOR_ALERT
-    else
-        color := COLOR_GOOD
+    if not na(value)
+        if(value < CASH_FLOW_GOOD)
+            color := COLOR_ALERT
+        else
+            color := COLOR_GOOD
+    color
 stringName_EBITDA = "EBITDA"
 stringValue_EBITDA = str.tostring(truncate(EBITDA)) + "M"
 
@@ -254,12 +274,13 @@ stringValue_EBITDA = str.tostring(truncate(EBITDA)) + "M"
 ROA = request.financial(syminfo.tickerid, "RETURN_ON_ASSETS", "FQ")
 getRoaColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < ROA_ALERT)
-        color := COLOR_ALERT
-    else if(value >= ROA_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value < ROA_ALERT)
+            color := COLOR_ALERT
+        else if(value >= ROA_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_ROA = "ROA"
 stringValue_ROA = str.tostring(truncate(ROA)) + "%"
@@ -268,12 +289,13 @@ stringValue_ROA = str.tostring(truncate(ROA)) + "%"
 ROE = request.financial(syminfo.tickerid, "RETURN_ON_EQUITY", "FQ")
 getRoeColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < ROE_ALERT)
-        color := COLOR_ALERT
-    else if(value >= ROE_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value < ROE_ALERT)
+            color := COLOR_ALERT
+        else if(value >= ROE_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_ROE = "ROE"
 stringValue_ROE = str.tostring(truncate(ROE)) + "%"
@@ -282,12 +304,13 @@ stringValue_ROE = str.tostring(truncate(ROE)) + "%"
 ROIC = request.financial(syminfo.tickerid, "RETURN_ON_INVESTED_CAPITAL", "FQ")
 getRoicColor(value) =>
     color color = COLOR_NEUTRAL
-    if(value < ROIC_ALERT)
-        color := COLOR_ALERT
-    else if(value >= ROIC_GOOD)
-        color := COLOR_GOOD
-    else
-        color := COLOR_WARNING
+    if not na(value)
+        if(value < ROIC_ALERT)
+            color := COLOR_ALERT
+        else if(value >= ROIC_GOOD)
+            color := COLOR_GOOD
+        else
+            color := COLOR_WARNING
     color
 stringName_ROIC = "ROIC"
 stringValue_ROIC = str.tostring(truncate(ROIC)) + "%"
