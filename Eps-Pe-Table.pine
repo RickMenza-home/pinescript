@@ -1,6 +1,16 @@
 //@version=6
 indicator("EPS and P/E history", overlay=false)
 
+NUMBER_OF_HISTORICAL_REPORTS = 5
+TOTAL_NUMBER_OF_COLUMNS = 3
+TOTAL_NUMBER_OF_ROWS = NUMBER_OF_HISTORICAL_REPORTS + 1
+TABLE_BORDER_WIDTH = 1
+TABLE_FRAME_WIDTH = 1
+TABLE_TITLE_TEXT_ALIGN = text.align_center
+TABLE_TEXT_SIZE = size.normal
+TABLE_KEY_TEXT_ALIGN = text.align_right
+TABLE_VALUE_TEXT_ALIGN = text.align_center
+
 // Function that around to 2 decimals
 truncate(num) =>
     factor = math.pow(10, 2)
@@ -19,6 +29,9 @@ eps1 = ta.valuewhen(new_report, eps, 1)
 eps2 = ta.valuewhen(new_report, eps, 2)
 eps3 = ta.valuewhen(new_report, eps, 3)
 eps4 = ta.valuewhen(new_report, eps, 4)
+
+getEpsHistoricString(occurence) =>
+    str.tostring(truncate(ta.valuewhen(new_report, eps, occurence)))
 
 // --- get closing price at each report for P/E
 price0 = ta.valuewhen(new_report, close, 0)
@@ -52,6 +65,36 @@ yr2 = ta.valuewhen(new_report, year, 2)
 yr3 = ta.valuewhen(new_report, year, 3)
 yr4 = ta.valuewhen(new_report, year, 4)
 
+getYearHistoricString(occurence) =>
+    str.tostring(ta.valuewhen(new_report, year, occurence))
+
+f_get(occurence) =>
+    [getYearHistoricString(occurence), getEpsHistoricString(occurence)]
+
+// precompute year/EPS strings once per calc for consistent rendering.
+year_strings = array.new_string()
+eps_strings = array.new_string()
+if NUMBER_OF_HISTORICAL_REPORTS > 0
+    [yr0_string, eps0_string] = f_get(0)
+    array.push(year_strings, yr0_string)
+    array.push(eps_strings, eps0_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 1
+    [yr1_string, eps1_string] = f_get(1)
+    array.push(year_strings, yr1_string)
+    array.push(eps_strings, eps1_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 2
+    [yr2_string, eps2_string] = f_get(2)
+    array.push(year_strings, yr2_string)
+    array.push(eps_strings, eps2_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 3
+    [yr3_string, eps3_string] = f_get(3)
+    array.push(year_strings, yr3_string)
+    array.push(eps_strings, eps3_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 4
+    [yr4_string, eps4_string] = f_get(4)
+    array.push(year_strings, yr4_string)
+    array.push(eps_strings, eps4_string)
+
 // ---- table
 var table t = table.new(position.top_right, 3, 6, border_width=1)
 
@@ -79,3 +122,41 @@ if barstate.islast
     table.cell(t,0,5,str.tostring(yr4), text_color=color.blue)
     table.cell(t,1,5,str.tostring(truncate(eps4)), text_color=color.blue)
     table.cell(t,2,5,str.tostring(truncate(pe4)), text_color=color.blue)
+
+
+COLOR_BACKGROUND = color.black
+COLOR_FRAME = COLOR_BACKGROUND
+COLOR_BORDER = COLOR_BACKGROUND
+COLOR_TEXT = color.white
+
+var myTable = table.new(position = position.bottom_center, columns = TOTAL_NUMBER_OF_COLUMNS, rows = TOTAL_NUMBER_OF_ROWS, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
+if barstate.islast
+    table.set_bgcolor(myTable, COLOR_BACKGROUND)
+    table.set_frame_color(myTable, COLOR_FRAME)
+    table.set_border_color(myTable, COLOR_BORDER)
+
+    titleRowIndex = 0
+    titleColoumnIndex = 0
+    table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "Year", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    titleColoumnIndex := titleColoumnIndex + 1
+    table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    titleColoumnIndex := titleColoumnIndex + 1
+    table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    pe_values = array.new_float()
+    if array.size(pe_values) == 0
+        array.push(pe_values, pe0)
+        array.push(pe_values, pe1)
+        array.push(pe_values, pe2)
+        array.push(pe_values, pe3)
+        array.push(pe_values, pe4)
+
+    for rowIndex = 1 to NUMBER_OF_HISTORICAL_REPORTS
+        occurrence = rowIndex - 1
+        year_string = array.get(year_strings, occurrence)
+        eps_string = array.get(eps_strings, occurrence)
+        pe_value = array.get(pe_values, occurrence)
+
+        table.cell(table_id = myTable, column = 0, row = rowIndex, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 2, row = rowIndex, text = str.tostring(truncate(pe_value)), text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
