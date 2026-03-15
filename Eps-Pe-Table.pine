@@ -26,45 +26,6 @@ new_report = not na(eps) and eps != eps[1]
 getEpsHistoricString(occurence) =>
     str.tostring(truncate(ta.valuewhen(new_report, eps, occurence)))
 
-// --- compute P/E ratios
-// --- store last 5 EPS
-eps0 = ta.valuewhen(new_report, eps, 0)
-eps1 = ta.valuewhen(new_report, eps, 1)
-eps2 = ta.valuewhen(new_report, eps, 2)
-eps3 = ta.valuewhen(new_report, eps, 3)
-eps4 = ta.valuewhen(new_report, eps, 4)
-
-// --- get closing price at each report for P/E
-price0 = ta.valuewhen(new_report, close, 0)
-price1 = ta.valuewhen(new_report, close, 1)
-price2 = ta.valuewhen(new_report, close, 2)
-price3 = ta.valuewhen(new_report, close, 3)
-price4 = ta.valuewhen(new_report, close, 4)
-
-var float pe0 = na
-var float pe1 = na
-var float pe2 = na
-var float pe3 = na
-var float pe4 = na
-
-if not na(eps0) and eps0 != 0
-    pe0 := price0 / eps0
-if not na(eps1) and eps1 != 0
-    pe1 := price1 / eps1
-if not na(eps2) and eps2 != 0
-    pe2 := price2 / eps2
-if not na(eps3) and eps3 != 0
-    pe3 := price3 / eps3
-if not na(eps4) and eps4 != 0
-    pe4 := price4 / eps4
-
-pe_values = array.new_float()
-array.push(pe_values, pe0)
-array.push(pe_values, pe1)
-array.push(pe_values, pe2)
-array.push(pe_values, pe3)
-array.push(pe_values, pe4)
-
 getPeHistoric(occurence) =>
     eps_ = ta.valuewhen(new_report, eps, occurence)
     if not na(eps_) and eps_ != 0
