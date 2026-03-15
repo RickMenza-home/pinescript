@@ -1,6 +1,11 @@
 //@version=6
 indicator("EPS and P/E history", overlay=false)
 
+// Function that around to 2 decimals
+truncate(num) =>
+    factor = math.pow(10, 2)
+    int(num * factor) / factor
+
 // --- pull EPS
 eps_current = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "TTM")
 eps = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "FY")
@@ -56,21 +61,21 @@ if barstate.islast
     table.cell(t,2,0,"P/E", text_color=color.blue)
 
     table.cell(t,0,1,str.tostring(yr0), text_color=color.blue)
-    table.cell(t,1,1,str.tostring(eps_current), text_color=color.blue)
-    table.cell(t,2,1,str.tostring(pe0), text_color=color.blue)
+    table.cell(t,1,1,str.tostring(truncate(eps_current)), text_color=color.blue)
+    table.cell(t,2,1,str.tostring(truncate(pe0)), text_color=color.blue)
 
     table.cell(t,0,2,str.tostring(yr1), text_color=color.blue)
-    table.cell(t,1,2,str.tostring(eps1), text_color=color.blue)
-    table.cell(t,2,2,str.tostring(pe1), text_color=color.blue)
+    table.cell(t,1,2,str.tostring(truncate(eps1)), text_color=color.blue)
+    table.cell(t,2,2,str.tostring(truncate(pe1)), text_color=color.blue)
 
     table.cell(t,0,3,str.tostring(yr2), text_color=color.blue)
-    table.cell(t,1,3,str.tostring(eps2), text_color=color.blue)
-    table.cell(t,2,3,str.tostring(pe2), text_color=color.blue)
+    table.cell(t,1,3,str.tostring(truncate(eps2)), text_color=color.blue)
+    table.cell(t,2,3,str.tostring(truncate(pe2)), text_color=color.blue)
 
     table.cell(t,0,4,str.tostring(yr3), text_color=color.blue)
-    table.cell(t,1,4,str.tostring(eps3), text_color=color.blue)
-    table.cell(t,2,4,str.tostring(pe3), text_color=color.blue)
+    table.cell(t,1,4,str.tostring(truncate(eps3)), text_color=color.blue)
+    table.cell(t,2,4,str.tostring(truncate(pe3)), text_color=color.blue)
 
     table.cell(t,0,5,str.tostring(yr4), text_color=color.blue)
-    table.cell(t,1,5,str.tostring(eps4), text_color=color.blue)
-    table.cell(t,2,5,str.tostring(pe4), text_color=color.blue)
+    table.cell(t,1,5,str.tostring(truncate(eps4)), text_color=color.blue)
+    table.cell(t,2,5,str.tostring(truncate(pe4)), text_color=color.blue)
