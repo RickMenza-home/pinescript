@@ -61,7 +61,7 @@ if barstate.islast
     table.cell(t,2,0,"P/E", text_color=color.blue)
 
     table.cell(t,0,1,str.tostring(yr0), text_color=color.blue)
-    table.cell(t,1,1,str.tostring(truncate(eps_current)), text_color=color.blue)
+    table.cell(t,1,1,str.tostring(truncate(eps0)), text_color=color.blue)
     table.cell(t,2,1,str.tostring(truncate(pe0)), text_color=color.blue)
 
     table.cell(t,0,2,str.tostring(yr1), text_color=color.blue)
