@@ -1,0 +1,68 @@
+//@version=6
+indicator("5Y EPS + P/E history", overlay=false)
+
+// --- pull EPS
+eps = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "FY")
+
+// --- detect new annual report
+new_report = not na(eps) and eps != eps[1]
+
+// --- store last 5 EPS
+eps0 = ta.valuewhen(new_report, eps, 0)
+eps1 = ta.valuewhen(new_report, eps, 1)
+eps2 = ta.valuewhen(new_report, eps, 2)
+eps3 = ta.valuewhen(new_report, eps, 3)
+eps4 = ta.valuewhen(new_report, eps, 4)
+
+// --- get closing price at each report for P/E
+price0 = ta.valuewhen(new_report, close, 0)
+price1 = ta.valuewhen(new_report, close, 1)
+price2 = ta.valuewhen(new_report, close, 2)
+price3 = ta.valuewhen(new_report, close, 3)
+price4 = ta.valuewhen(new_report, close, 4)
+
+// --- compute P/E ratios
+var float pe0 = na
+var float pe1 = na
+var float pe2 = na
+var float pe3 = na
+var float pe4 = na
+
+if not na(eps0) and eps0 != 0
+    pe0 := price0 / eps0
+if not na(eps1) and eps1 != 0
+    pe1 := price1 / eps1
+if not na(eps2) and eps2 != 0
+    pe2 := price2 / eps2
+if not na(eps3) and eps3 != 0
+    pe3 := price3 / eps3
+if not na(eps4) and eps4 != 0
+    pe4 := price4 / eps4
+
+// ---- table
+var table t = table.new(position.top_right, 3, 6, border_width=1)
+
+if barstate.islast
+    table.cell(t,0,0,"Year", text_color=color.blue)
+    table.cell(t,1,0,"EPS", text_color=color.blue)
+    table.cell(t,2,0,"P/E", text_color=color.blue)
+
+    table.cell(t,0,1,"Current", text_color=color.blue)
+    table.cell(t,1,1,str.tostring(eps0), text_color=color.blue)
+    table.cell(t,2,1,str.tostring(pe0), text_color=color.blue)
+
+    table.cell(t,0,2,"-1", text_color=color.blue)
+    table.cell(t,1,2,str.tostring(eps1), text_color=color.blue)
+    table.cell(t,2,2,str.tostring(pe1), text_color=color.blue)
+
+    table.cell(t,0,3,"-2", text_color=color.blue)
+    table.cell(t,1,3,str.tostring(eps2), text_color=color.blue)
+    table.cell(t,2,3,str.tostring(pe2), text_color=color.blue)
+
+    table.cell(t,0,4,"-3", text_color=color.blue)
+    table.cell(t,1,4,str.tostring(eps3), text_color=color.blue)
+    table.cell(t,2,4,str.tostring(pe3), text_color=color.blue)
+
+    table.cell(t,0,5,"-4", text_color=color.blue)
+    table.cell(t,1,5,str.tostring(eps4), text_color=color.blue)
+    table.cell(t,2,5,str.tostring(pe4), text_color=color.blue)
