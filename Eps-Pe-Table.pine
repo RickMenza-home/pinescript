@@ -58,13 +58,6 @@ if not na(eps3) and eps3 != 0
 if not na(eps4) and eps4 != 0
     pe4 := price4 / eps4
 
-// --- get fiscal year at each report
-yr0 = ta.valuewhen(new_report, year, 0)
-yr1 = ta.valuewhen(new_report, year, 1)
-yr2 = ta.valuewhen(new_report, year, 2)
-yr3 = ta.valuewhen(new_report, year, 3)
-yr4 = ta.valuewhen(new_report, year, 4)
-
 getYearHistoricString(occurence) =>
     str.tostring(ta.valuewhen(new_report, year, occurence))
 
@@ -96,34 +89,6 @@ if NUMBER_OF_HISTORICAL_REPORTS > 4
     array.push(eps_strings, eps4_string)
 
 // ---- table
-var table t = table.new(position.top_right, 3, 6, border_width=1)
-
-if barstate.islast
-    table.cell(t,0,0,"Year", text_color=color.blue)
-    table.cell(t,1,0,"EPS", text_color=color.blue)
-    table.cell(t,2,0,"P/E", text_color=color.blue)
-
-    table.cell(t,0,1,str.tostring(yr0), text_color=color.blue)
-    table.cell(t,1,1,str.tostring(truncate(eps0)), text_color=color.blue)
-    table.cell(t,2,1,str.tostring(truncate(pe0)), text_color=color.blue)
-
-    table.cell(t,0,2,str.tostring(yr1), text_color=color.blue)
-    table.cell(t,1,2,str.tostring(truncate(eps1)), text_color=color.blue)
-    table.cell(t,2,2,str.tostring(truncate(pe1)), text_color=color.blue)
-
-    table.cell(t,0,3,str.tostring(yr2), text_color=color.blue)
-    table.cell(t,1,3,str.tostring(truncate(eps2)), text_color=color.blue)
-    table.cell(t,2,3,str.tostring(truncate(pe2)), text_color=color.blue)
-
-    table.cell(t,0,4,str.tostring(yr3), text_color=color.blue)
-    table.cell(t,1,4,str.tostring(truncate(eps3)), text_color=color.blue)
-    table.cell(t,2,4,str.tostring(truncate(pe3)), text_color=color.blue)
-
-    table.cell(t,0,5,str.tostring(yr4), text_color=color.blue)
-    table.cell(t,1,5,str.tostring(truncate(eps4)), text_color=color.blue)
-    table.cell(t,2,5,str.tostring(truncate(pe4)), text_color=color.blue)
-
-
 COLOR_BACKGROUND = color.black
 COLOR_FRAME = COLOR_BACKGROUND
 COLOR_BORDER = COLOR_BACKGROUND
