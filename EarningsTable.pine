@@ -3,21 +3,15 @@ indicator("5Y EPS history", overlay=false)
 
 eps = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "FY")
 
-// detect new financial report
+// detect new annual report
 new_report = not na(eps) and eps != eps[1]
-// store last 5 values
-var float eps0 = na
-var float eps1 = na
-var float eps2 = na
-var float eps3 = na
-var float eps4 = na
 
-if new_report
-    eps4 := eps3
-    eps3 := eps2
-    eps2 := eps1
-    eps1 := eps0
-    eps0 := eps
+// retrieve previous reports
+eps0 = ta.valuewhen(new_report, eps, 0)
+eps1 = ta.valuewhen(new_report, eps, 1)
+eps2 = ta.valuewhen(new_report, eps, 2)
+eps3 = ta.valuewhen(new_report, eps, 3)
+eps4 = ta.valuewhen(new_report, eps, 4)
 
 // ---- table
 var table t = table.new(position.top_right, 2, 6)
