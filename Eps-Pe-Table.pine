@@ -23,15 +23,16 @@ eps = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "FY")
 // --- detect new annual report
 new_report = not na(eps) and eps != eps[1]
 
+getEpsHistoricString(occurence) =>
+    str.tostring(truncate(ta.valuewhen(new_report, eps, occurence)))
+
+// --- compute P/E ratios
 // --- store last 5 EPS
 eps0 = ta.valuewhen(new_report, eps, 0)
 eps1 = ta.valuewhen(new_report, eps, 1)
 eps2 = ta.valuewhen(new_report, eps, 2)
 eps3 = ta.valuewhen(new_report, eps, 3)
 eps4 = ta.valuewhen(new_report, eps, 4)
-
-getEpsHistoricString(occurence) =>
-    str.tostring(truncate(ta.valuewhen(new_report, eps, occurence)))
 
 // --- get closing price at each report for P/E
 price0 = ta.valuewhen(new_report, close, 0)
@@ -40,7 +41,6 @@ price2 = ta.valuewhen(new_report, close, 2)
 price3 = ta.valuewhen(new_report, close, 3)
 price4 = ta.valuewhen(new_report, close, 4)
 
-// --- compute P/E ratios
 var float pe0 = na
 var float pe1 = na
 var float pe2 = na
@@ -58,35 +58,62 @@ if not na(eps3) and eps3 != 0
 if not na(eps4) and eps4 != 0
     pe4 := price4 / eps4
 
+pe_values = array.new_float()
+array.push(pe_values, pe0)
+array.push(pe_values, pe1)
+array.push(pe_values, pe2)
+array.push(pe_values, pe3)
+array.push(pe_values, pe4)
+
+getPeHistoric(occurence) =>
+    eps_ = ta.valuewhen(new_report, eps, occurence)
+    if not na(eps_) and eps_ != 0
+        ta.valuewhen(new_report, close, occurence) / eps_
+    else
+        na
+
+getPeHistoricString(occurence) =>
+    pe_ = getPeHistoric(occurence)
+    if not na(pe_)
+        str.tostring(truncate(pe_))
+    else
+        "N/A"
+
 getYearHistoricString(occurence) =>
     str.tostring(ta.valuewhen(new_report, year, occurence))
 
 f_get(occurence) =>
-    [getYearHistoricString(occurence), getEpsHistoricString(occurence)]
+    [getYearHistoricString(occurence), getEpsHistoricString(occurence), getPeHistoricString(occurence)]
 
 // precompute year/EPS strings once per calc for consistent rendering.
 year_strings = array.new_string()
 eps_strings = array.new_string()
+pe_strings = array.new_string()
 if NUMBER_OF_HISTORICAL_REPORTS > 0
-    [yr0_string, eps0_string] = f_get(0)
+    [yr0_string, eps0_string, pe0_string] = f_get(0)
     array.push(year_strings, yr0_string)
     array.push(eps_strings, eps0_string)
+    array.push(pe_strings, pe0_string)
 if NUMBER_OF_HISTORICAL_REPORTS > 1
-    [yr1_string, eps1_string] = f_get(1)
+    [yr1_string, eps1_string, pe1_string] = f_get(1)
     array.push(year_strings, yr1_string)
     array.push(eps_strings, eps1_string)
+    array.push(pe_strings, pe1_string)
 if NUMBER_OF_HISTORICAL_REPORTS > 2
-    [yr2_string, eps2_string] = f_get(2)
+    [yr2_string, eps2_string, pe2_string] = f_get(2)
     array.push(year_strings, yr2_string)
     array.push(eps_strings, eps2_string)
+    array.push(pe_strings, pe2_string)
 if NUMBER_OF_HISTORICAL_REPORTS > 3
-    [yr3_string, eps3_string] = f_get(3)
+    [yr3_string, eps3_string, pe3_string] = f_get(3)
     array.push(year_strings, yr3_string)
     array.push(eps_strings, eps3_string)
+    array.push(pe_strings, pe3_string)
 if NUMBER_OF_HISTORICAL_REPORTS > 4
-    [yr4_string, eps4_string] = f_get(4)
+    [yr4_string, eps4_string, pe4_string] = f_get(4)
     array.push(year_strings, yr4_string)
     array.push(eps_strings, eps4_string)
+    array.push(pe_strings, pe4_string)
 
 // ---- table
 COLOR_BACKGROUND = color.black
@@ -108,20 +135,12 @@ if barstate.islast
     titleColoumnIndex := titleColoumnIndex + 1
     table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    pe_values = array.new_float()
-    if array.size(pe_values) == 0
-        array.push(pe_values, pe0)
-        array.push(pe_values, pe1)
-        array.push(pe_values, pe2)
-        array.push(pe_values, pe3)
-        array.push(pe_values, pe4)
-
     for rowIndex = 1 to NUMBER_OF_HISTORICAL_REPORTS
         occurrence = rowIndex - 1
         year_string = array.get(year_strings, occurrence)
         eps_string = array.get(eps_strings, occurrence)
-        pe_value = array.get(pe_values, occurrence)
+        pe_string = array.get(pe_strings, occurrence)
 
         table.cell(table_id = myTable, column = 0, row = rowIndex, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
         table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 2, row = rowIndex, text = str.tostring(truncate(pe_value)), text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 2, row = rowIndex, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
