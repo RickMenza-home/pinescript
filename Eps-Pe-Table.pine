@@ -1,7 +1,7 @@
 //@version=6
 indicator("EPS and P/E history", overlay=false)
 
-NUMBER_OF_HISTORICAL_REPORTS = 5
+NUMBER_OF_HISTORICAL_REPORTS = 10
 TOTAL_NUMBER_OF_COLUMNS = 3
 TOTAL_NUMBER_OF_ROWS = NUMBER_OF_HISTORICAL_REPORTS + 1
 TABLE_BORDER_WIDTH = 1
@@ -75,6 +75,36 @@ if NUMBER_OF_HISTORICAL_REPORTS > 4
     array.push(year_strings, yr4_string)
     array.push(eps_strings, eps4_string)
     array.push(pe_strings, pe4_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 5
+    [yr5_string, eps5_string, pe5_string] = f_get(5)
+    array.push(year_strings, yr5_string)
+    array.push(eps_strings, eps5_string)
+    array.push(pe_strings, pe5_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 6
+    [yr6_string, eps6_string, pe6_string] = f_get(6)
+    array.push(year_strings, yr6_string)
+    array.push(eps_strings, eps6_string)
+    array.push(pe_strings, pe6_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 7
+    [yr7_string, eps7_string, pe7_string] = f_get(7)
+    array.push(year_strings, yr7_string)
+    array.push(eps_strings, eps7_string)
+    array.push(pe_strings, pe7_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 8
+    [yr8_string, eps8_string, pe8_string] = f_get(8)
+    array.push(year_strings, yr8_string)
+    array.push(eps_strings, eps8_string)
+    array.push(pe_strings, pe8_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 9
+    [yr9_string, eps9_string, pe9_string] = f_get(9)
+    array.push(year_strings, yr9_string)
+    array.push(eps_strings, eps9_string)
+    array.push(pe_strings, pe9_string)
+if NUMBER_OF_HISTORICAL_REPORTS > 10
+    [yr10_string, eps10_string, pe10_string] = f_get(10)
+    array.push(year_strings, yr10_string)
+    array.push(eps_strings, eps10_string)
+    array.push(pe_strings, pe10_string)
 
 // ---- table
 COLOR_BACKGROUND = color.black
