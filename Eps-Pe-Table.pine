@@ -23,11 +23,18 @@ eps = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "FY")
 // --- detect new annual report
 new_report = not na(eps) and eps != eps[1]
 
+getEpsHistoric(occurence) =>
+    ta.valuewhen(new_report, eps, occurence)
+
 getEpsHistoricString(occurence) =>
-    str.tostring(truncate(ta.valuewhen(new_report, eps, occurence)))
+    eps_ = getEpsHistoric(occurence)
+    if not na(eps_) and eps_ != 0
+        str.tostring(truncate(eps_))
+    else
+        "N/A"
 
 getPeHistoric(occurence) =>
-    eps_ = ta.valuewhen(new_report, eps, occurence)
+    eps_ = getEpsHistoric(occurence)
     if not na(eps_) and eps_ != 0
         ta.valuewhen(new_report, close, occurence) / eps_
     else
