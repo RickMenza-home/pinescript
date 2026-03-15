@@ -119,7 +119,7 @@ COLOR_FRAME = COLOR_BACKGROUND
 COLOR_BORDER = COLOR_BACKGROUND
 COLOR_TEXT = color.white
 
-var myTable = table.new(position = position.bottom_center, columns = TOTAL_NUMBER_OF_COLUMNS, rows = TOTAL_NUMBER_OF_ROWS, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
+var myTable = table.new(position = position.top_right, columns = TOTAL_NUMBER_OF_COLUMNS, rows = TOTAL_NUMBER_OF_ROWS, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
 if barstate.islast
     table.set_bgcolor(myTable, COLOR_BACKGROUND)
     table.set_frame_color(myTable, COLOR_FRAME)
@@ -127,7 +127,7 @@ if barstate.islast
 
     titleRowIndex = 0
     titleColoumnIndex = 0
-    table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "Year", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    //table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "Year", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     titleColoumnIndex := titleColoumnIndex + 1
     table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     titleColoumnIndex := titleColoumnIndex + 1
@@ -142,3 +142,9 @@ if barstate.islast
         table.cell(table_id = myTable, column = 0, row = rowIndex, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
         table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
         table.cell(table_id = myTable, column = 2, row = rowIndex, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    rowIndex = NUMBER_OF_HISTORICAL_REPORTS
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "Current", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(eps_current)), text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    pe_current = not na(eps_current) and eps_current != 0 ? close / eps_current : na
+    table.cell(table_id = myTable, column = 2, row = rowIndex, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
