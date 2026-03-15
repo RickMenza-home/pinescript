@@ -133,7 +133,7 @@ stringValue_PE = str.tostring(truncate(PriceEarningsRatio))
 
 // BOOK VALUE PER SHARE
 // Book value per share (BVPS) is the ratio of equity available to common shareholders divided by the number of outstanding shares. 
-BVPS  = request.financial(syminfo.tickerid, "BOOK_VALUE_PER_SHARE", "FQ")
+BVPS  = request.financial(syminfo.tickerid, "BOOK_VALUE_PER_SHARE", "FY")
 // PRICE BOOK RATIO
 // Price Book Ratio is calculated by dividing the price per share by the book value per share.
 PriceBookRatio = close / BVPS
@@ -154,7 +154,7 @@ stringValue_PB = str.tostring(truncate(PriceBookRatio))
 
 // DEBT TO EQUITY RATIO
 // Debt to equity ratio is the ratio of Total debt to Total equity
-DE = request.financial(syminfo.tickerid, "DEBT_TO_EQUITY", "FQ")
+DE = request.financial(syminfo.tickerid, "DEBT_TO_EQUITY", "FY")
 getDeRatioColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
@@ -188,7 +188,7 @@ stringName_PEG = "PEG ratio"
 stringValue_PEG = str.tostring(truncate(PEG))
 
 // DIVIDEND
-dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FQ")
+dividend = request.financial(syminfo.tickerid, "DIVIDENDS_YIELD", "FY")
 getDividendColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
@@ -201,7 +201,7 @@ stringName_dividend = "DIVIDEND"
 stringValue_dividend = str.tostring(truncate(dividend)) + "%"
 
 // GROSS MARGIN
-grossMargin = request.financial(syminfo.tickerid, "GROSS_MARGIN", "FQ")
+grossMargin = request.financial(syminfo.tickerid, "GROSS_MARGIN", "TTM")
 getGrossMarginColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
@@ -216,7 +216,7 @@ stringName_grossMargin = "GR. MARGIN"
 stringValue_grossMargin = str.tostring(truncate(grossMargin)) + "%"
 
 // NET MARGIN
-netMargin = request.financial(syminfo.tickerid, "NET_MARGIN", "FQ")
+netMargin = request.financial(syminfo.tickerid, "NET_MARGIN", "TTM")
 getNetMarginColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
@@ -271,7 +271,7 @@ stringName_EBITDA = "EBITDA"
 stringValue_EBITDA = str.tostring(truncate(EBITDA)) + "M"
 
 // RETURN ON ASSETS RATIO
-ROA = request.financial(syminfo.tickerid, "RETURN_ON_ASSETS", "FQ")
+ROA = request.financial(syminfo.tickerid, "RETURN_ON_ASSETS", "FY")
 getRoaColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
@@ -286,7 +286,7 @@ stringName_ROA = "ROA"
 stringValue_ROA = str.tostring(truncate(ROA)) + "%"
 
 // RETURN ON EQUITY RATIO
-ROE = request.financial(syminfo.tickerid, "RETURN_ON_EQUITY", "FQ")
+ROE = request.financial(syminfo.tickerid, "RETURN_ON_EQUITY", "FY")
 getRoeColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
@@ -301,7 +301,7 @@ stringName_ROE = "ROE"
 stringValue_ROE = str.tostring(truncate(ROE)) + "%"
 
 // RETURN ON INVESTED CAPITAL RATIO
-ROIC = request.financial(syminfo.tickerid, "RETURN_ON_INVESTED_CAPITAL", "FQ")
+ROIC = request.financial(syminfo.tickerid, "RETURN_ON_INVESTED_CAPITAL", "FY")
 getRoicColor(value) =>
     color color = COLOR_NEUTRAL
     if not na(value)
