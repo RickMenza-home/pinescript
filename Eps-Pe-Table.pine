@@ -160,9 +160,8 @@ if barstate.islast
     rowIndex += 1
     occurrence = 0
     if max_years == 0
-        table.cell(table_id = myTable, column = 0, row = rowIndex, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 1, row = rowIndex, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 2, row = rowIndex, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 0, row = rowIndex, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = text.align_center, text_size = TABLE_TEXT_SIZE)
+        table.merge_cells(table_id = myTable, start_column = 0, start_row = rowIndex, end_column = 2, end_row = rowIndex)
         occurrence += 1
     else
         for i = rowIndex to max_years + rowIndex - 1
