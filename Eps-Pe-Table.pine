@@ -2,6 +2,7 @@
 indicator("EPS and P/E history", overlay=false)
 
 MAX_NUMBER_OF_HISTORICAL_REPORTS = 10
+NOT_AVAILABLE_STRING = "N/A"
 
 // Function that around to 2 decimals
 truncate(num) =>
@@ -23,7 +24,7 @@ getEpsHistoricString(occurence) =>
     if not na(eps_) and eps_ != 0
         str.tostring(truncate(eps_))
     else
-        "N/A"
+        NOT_AVAILABLE_STRING
 
 getPeHistoric(occurence) =>
     eps_ = getEpsHistoric(occurence)
@@ -37,14 +38,14 @@ getPeHistoricString(occurence) =>
     if not na(pe_)
         str.tostring(truncate(pe_))
     else
-        "N/A"
+        NOT_AVAILABLE_STRING
 
 getYearHistoricString(occurence) =>
     year_ = ta.valuewhen(new_report, year, occurence)
     if not na(year_)
         str.tostring(year_)
     else
-        "N/A"
+        NOT_AVAILABLE_STRING
 
 f_get(occurence) =>
     [getYearHistoricString(occurence), getEpsHistoric(occurence), getEpsHistoricString(occurence), getPeHistoric(occurence), getPeHistoricString(occurence)]
@@ -56,94 +57,106 @@ eps_strings = array.new_string()
 eps_values = array.new_float()
 pe_strings = array.new_string()
 pe_values = array.new_float()
+
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 0
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(0)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 1
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(1)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 2
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(2)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 3
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(3)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 4
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(4)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 5
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(5)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 6
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(6)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 7
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(7)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 8
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(8)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 9
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(9)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 10
     [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(10)
-    array.push(year_strings, yr_string)
-    array.push(eps_strings, eps_string)
-    array.push(pe_strings, pe_string)
-    array.push(eps_values, eps_value)
-    array.push(pe_values, pe_value)
-    max_years := max_years + 1
+    if not na(eps_value) and eps_value != 0
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+        max_years := max_years + 1
 
 // ---- table
 COLOR_BACKGROUND = color.black
@@ -152,7 +165,7 @@ COLOR_BORDER = COLOR_BACKGROUND
 COLOR_TEXT = color.white
 
 TOTAL_NUMBER_OF_COLUMNS = 3
-TOTAL_NUMBER_OF_ROWS = max_years + 2 // +1 for title +1 for current
+TOTAL_NUMBER_OF_ROWS = MAX_NUMBER_OF_HISTORICAL_REPORTS + 2 // fixed max rows: title + historical rows + TTM
 TABLE_BORDER_WIDTH = 1
 TABLE_FRAME_WIDTH = 1
 TABLE_TITLE_TEXT_ALIGN = text.align_center
@@ -166,25 +179,28 @@ if barstate.islast
     table.set_frame_color(myTable, COLOR_FRAME)
     table.set_border_color(myTable, COLOR_BORDER)
 
-    titleRowIndex = 0
-    titleColoumnIndex = 0
-    titleColoumnIndex := titleColoumnIndex + 1
-    table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    titleColoumnIndex := titleColoumnIndex + 1
-    table.cell(table_id = myTable, column = titleColoumnIndex, row = titleRowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    // Header labels
+    table.cell(table_id = myTable, column = 1, row = 0, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 2, row = 0, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    for rowIndex = 1 to max_years
-        occurrence = rowIndex - 1
-        year_string = array.get(year_strings, occurrence)
-        eps_string = array.get(eps_strings, occurrence)
-        pe_string = array.get(pe_strings, occurrence)
+    if max_years == 0
+        table.cell(table_id = myTable, column = 0, row = 1, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 1, row = 1, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 2, row = 1, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    else
+        for rowIndex = 1 to max_years
+            occurrence = rowIndex - 1
+            year_string = array.get(year_strings, occurrence)
+            eps_string = array.get(eps_strings, occurrence)
+            pe_string = array.get(pe_strings, occurrence)
 
-        table.cell(table_id = myTable, column = 0, row = rowIndex, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 2, row = rowIndex, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 0, row = rowIndex, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 2, row = rowIndex, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    rowIndex = max_years + 1
-    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "Current", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 1, row = rowIndex, text = str.tostring(truncate(eps_current)), text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    ttm_row = max_years + 1
+    table.cell(table_id = myTable, column = 0, row = ttm_row, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    eps_text = not na(eps_current) ? str.tostring(truncate(eps_current)) : "N/A"
+    table.cell(table_id = myTable, column = 1, row = ttm_row, text = eps_text, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     pe_current = not na(eps_current) and eps_current != 0 ? close / eps_current : na
-    table.cell(table_id = myTable, column = 2, row = rowIndex, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 2, row = ttm_row, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
