@@ -1,9 +1,17 @@
 //@version=6
 indicator("EPS and P/E history", overlay=true)
 
+// --- constants
 MAX_NUMBER_OF_HISTORICAL_REPORTS = 10
 NOT_AVAILABLE_STRING = "N/A"
 MIN_NUMBER_OF_HISTORICAL_REPORTS_FOR_AVERAGING = 5
+TTM_VS_AVERAGE_LIMIT = 0.2  // Flag if TTM is over that 20% of average
+
+COLOR_BACKGROUND = color.black
+COLOR_ALERT = color.red
+COLOR_WARNING = color.orange
+COLOR_GOOD = color.green
+COLOR_NEUTRAL = COLOR_BACKGROUND
 
 // Function that around to 2 decimals
 truncate(num) =>
@@ -130,8 +138,29 @@ getPeAverage() =>
     else
         sum / count
 
+getPeCurrent() =>
+    if not na(eps_current) and eps_current != 0
+        close / eps_current
+    else
+        na
+
+getPeTtmColor() =>
+    pe_average = getPeAverage()
+    if na(pe_average)
+        COLOR_NEUTRAL
+    else
+        limit = pe_average * TTM_VS_AVERAGE_LIMIT
+        pe_current = getPeCurrent()
+        if pe_current < 0
+            COLOR_ALERT
+        else if pe_current <= pe_average
+            COLOR_GOOD
+        else if pe_current <= pe_average + limit
+            COLOR_WARNING
+        else
+            COLOR_ALERT
+
 // ---- table
-COLOR_BACKGROUND = color.black
 COLOR_FRAME = COLOR_BACKGROUND
 COLOR_BORDER = COLOR_BACKGROUND
 COLOR_TEXT = color.white
@@ -177,8 +206,9 @@ if barstate.islast
     table.cell(table_id = myTable, column = 0, row = rowIndex, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     eps_text = not na(eps_current) ? str.tostring(truncate(eps_current)) : "N/A"
     table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_text, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    pe_current = not na(eps_current) and eps_current != 0 ? close / eps_current : na
-    table.cell(table_id = myTable, column = 2, row = rowIndex, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    pe_current = getPeCurrent()
+    pe_current_text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A"
+    table.cell(table_id = myTable, column = 2, row = rowIndex, text = pe_current_text, text_color = COLOR_TEXT, bgcolor = getPeTtmColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
     rowIndex += 1
     if max_years != 0
