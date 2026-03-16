@@ -47,115 +47,64 @@ getYearHistoricString(occurence) =>
     else
         NOT_AVAILABLE_STRING
 
-f_get(occurence) =>
-    [getYearHistoricString(occurence), getEpsHistoric(occurence), getEpsHistoricString(occurence), getPeHistoric(occurence), getPeHistoricString(occurence)]
-
 // precompute year/EPS strings once per calc for consistent rendering.
 max_years = 0
 year_strings = array.new_string()
 eps_strings = array.new_string()
-eps_values = array.new_float()
 pe_strings = array.new_string()
+eps_values = array.new_float()
 pe_values = array.new_float()
 
-if MAX_NUMBER_OF_HISTORICAL_REPORTS > 0
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(0)
-    if not na(eps_value) and eps_value != 0
+f_get(occurence) =>
+    [getYearHistoricString(occurence), getEpsHistoric(occurence), getEpsHistoricString(occurence), getPeHistoric(occurence), getPeHistoricString(occurence)]
+
+f_getHistoricRow(occurrence) =>
+    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(occurrence)
+    valid = not na(eps_value) and eps_value != 0
+    [valid, yr_string, eps_value, eps_string, pe_value, pe_string]
+
+addHistoricRow(occurrence) =>
+    [valid, yr_string, eps_value, eps_string, pe_value, pe_string] = f_getHistoricRow(occurrence)
+    if valid
         array.push(year_strings, yr_string)
         array.push(eps_strings, eps_string)
         array.push(pe_strings, pe_string)
         array.push(eps_values, eps_value)
         array.push(pe_values, pe_value)
+    valid
+
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 0
+    if addHistoricRow(0)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 1
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(1)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(1)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 2
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(2)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(2)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 3
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(3)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(3)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 4
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(4)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(4)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 5
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(5)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(5)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 6
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(6)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(6)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 7
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(7)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(7)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 8
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(8)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(8)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 9
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(9)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(9)
         max_years := max_years + 1
 if MAX_NUMBER_OF_HISTORICAL_REPORTS > 10
-    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get(10)
-    if not na(eps_value) and eps_value != 0
-        array.push(year_strings, yr_string)
-        array.push(eps_strings, eps_string)
-        array.push(pe_strings, pe_string)
-        array.push(eps_values, eps_value)
-        array.push(pe_values, pe_value)
+    if addHistoricRow(10)
         max_years := max_years + 1
 
 // ---- table
