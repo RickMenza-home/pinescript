@@ -151,33 +151,38 @@ if barstate.islast
     table.set_frame_color(myTable, COLOR_FRAME)
     table.set_border_color(myTable, COLOR_BORDER)
 
-    // Header labels
-    table.cell(table_id = myTable, column = 1, row = 0, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = 2, row = 0, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex = 0
 
+    // Header labels
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 2, row = rowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    rowIndex += 1
+    occurrence = 0
     if max_years == 0
-        table.cell(table_id = myTable, column = 0, row = 1, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 1, row = 1, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.cell(table_id = myTable, column = 2, row = 1, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 0, row = rowIndex, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 1, row = rowIndex, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = 2, row = rowIndex, text = "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        occurrence += 1
     else
-        for rowIndex = 1 to max_years
-            occurrence = rowIndex - 1
+        for i = rowIndex to max_years + rowIndex - 1
             year_string = array.get(year_strings, occurrence)
             eps_string = array.get(eps_strings, occurrence)
             pe_string = array.get(pe_strings, occurrence)
+            table.cell(table_id = myTable, column = 0, row = i, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 1, row = i, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 2, row = i, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            occurrence += 1
 
-            table.cell(table_id = myTable, column = 0, row = rowIndex, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-            table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-            table.cell(table_id = myTable, column = 2, row = rowIndex, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-
-    ttm_row = max_years + 1
-    table.cell(table_id = myTable, column = 0, row = ttm_row, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex += occurrence
+    table.cell(table_id = myTable, column = 0, row = rowIndex, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     eps_text = not na(eps_current) ? str.tostring(truncate(eps_current)) : "N/A"
-    table.cell(table_id = myTable, column = 1, row = ttm_row, text = eps_text, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 1, row = rowIndex, text = eps_text, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     pe_current = not na(eps_current) and eps_current != 0 ? close / eps_current : na
-    table.cell(table_id = myTable, column = 2, row = ttm_row, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 2, row = rowIndex, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    average_row = ttm_row + 1
-    table.cell(table_id = myTable, column = 0, row = average_row, text = "Average", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    pe_average = getPeAverage()
-    table.cell(table_id = myTable, column = 2, row = average_row, text = not na(pe_average) ? str.tostring(truncate(pe_average)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    rowIndex += 1
+    if max_years != 0
+        table.cell(table_id = myTable, column = 0, row = rowIndex, text = "Average", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        pe_average = getPeAverage()
+        table.cell(table_id = myTable, column = 2, row = rowIndex, text = not na(pe_average) ? str.tostring(truncate(pe_average)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
