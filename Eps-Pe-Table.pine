@@ -3,6 +3,7 @@ indicator("EPS and P/E history", overlay=false)
 
 MAX_NUMBER_OF_HISTORICAL_REPORTS = 10
 NOT_AVAILABLE_STRING = "N/A"
+MIN_NUMBER_OF_HISTORICAL_REPORTS_FOR_AVERAGING = 5
 
 // Function that around to 2 decimals
 truncate(num) =>
@@ -107,6 +108,18 @@ if MAX_NUMBER_OF_HISTORICAL_REPORTS > 10
     if addHistoricRow(10)
         max_years := max_years + 1
 
+getPeAverage() =>
+    size = array.size(pe_values)
+    sum = 0.0
+    count = 0
+    if(size >= MIN_NUMBER_OF_HISTORICAL_REPORTS_FOR_AVERAGING)
+        for i = 0 to array.size(pe_values) - 1
+            pe_ = array.get(pe_values, i)
+            if not na(pe_)
+                sum += pe_
+                count += 1
+    count > 0 ? sum / count : na
+
 // ---- table
 COLOR_BACKGROUND = color.black
 COLOR_FRAME = COLOR_BACKGROUND
@@ -114,7 +127,7 @@ COLOR_BORDER = COLOR_BACKGROUND
 COLOR_TEXT = color.white
 
 TOTAL_NUMBER_OF_COLUMNS = 3
-TOTAL_NUMBER_OF_ROWS = MAX_NUMBER_OF_HISTORICAL_REPORTS + 2 // fixed max rows: title + historical rows + TTM
+TOTAL_NUMBER_OF_ROWS = MAX_NUMBER_OF_HISTORICAL_REPORTS + 3 // title + historical rows + TTM + average
 TABLE_BORDER_WIDTH = 1
 TABLE_FRAME_WIDTH = 1
 TABLE_TITLE_TEXT_ALIGN = text.align_center
@@ -153,3 +166,8 @@ if barstate.islast
     table.cell(table_id = myTable, column = 1, row = ttm_row, text = eps_text, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
     pe_current = not na(eps_current) and eps_current != 0 ? close / eps_current : na
     table.cell(table_id = myTable, column = 2, row = ttm_row, text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    average_row = ttm_row + 1
+    table.cell(table_id = myTable, column = 0, row = average_row, text = "Average", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    pe_average = getPeAverage()
+    table.cell(table_id = myTable, column = 2, row = average_row, text = not na(pe_average) ? str.tostring(truncate(pe_average)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
