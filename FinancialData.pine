@@ -4,6 +4,11 @@ indicator("Financial Data", overlay = true, format = format.volume, precision = 
 // Constants
 MILLION = 1000000
 
+MAX_NUMBER_OF_HISTORICAL_REPORTS = 10
+NOT_AVAILABLE_STRING = "N/A"
+MIN_NUMBER_OF_HISTORICAL_REPORTS_FOR_AVERAGING = 5
+TTM_VS_AVERAGE_LIMIT = 0.2  // Flag if TTM is over that 20% of average
+
 COLOR_BACKGROUND = color.black
 COLOR_FRAME = COLOR_BACKGROUND
 COLOR_BORDER = COLOR_BACKGROUND
@@ -332,13 +337,160 @@ f_add(stringName_ROA, stringValue_ROA, getRoaColor(ROA))
 f_add(stringName_ROE, stringValue_ROE, getRoeColor(ROE))
 f_add(stringName_ROIC, stringValue_ROIC, getRoicColor(ROIC))
 
+// --- pull EPS
+eps_current = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "TTM")
+eps_historic = request.financial(syminfo.tickerid, "EARNINGS_PER_SHARE_DILUTED", "FY")
+
+// --- detect new annual report
+new_report = not na(eps_historic) and eps_historic != eps_historic[1]
+
+getEpsHistoric(occurence) =>
+    ta.valuewhen(new_report, eps_historic, occurence)
+
+getEpsHistoricString(occurence) =>
+    eps_ = getEpsHistoric(occurence)
+    if not na(eps_) and eps_ != 0
+        str.tostring(truncate(eps_))
+    else
+        NOT_AVAILABLE_STRING
+
+getPeHistoric(occurence) =>
+    eps_ = getEpsHistoric(occurence)
+    if not na(eps_) and eps_ != 0
+        ta.valuewhen(new_report, close, occurence) / eps_
+    else
+        na
+
+getPeHistoricString(occurence) =>
+    pe_ = getPeHistoric(occurence)
+    if not na(pe_)
+        str.tostring(truncate(pe_))
+    else
+        NOT_AVAILABLE_STRING
+
+getYearHistoricString(occurence) =>
+    year_ = ta.valuewhen(new_report, year, occurence)
+    if not na(year_)
+        str.tostring(year_)
+    else
+        NOT_AVAILABLE_STRING
+
+// precompute year/EPS strings once per calc for consistent rendering.
+max_years = 0
+year_strings = array.new_string()
+eps_strings = array.new_string()
+pe_strings = array.new_string()
+eps_values = array.new_float()
+pe_values = array.new_float()
+
+f_get_from_occurence(occurence) =>
+    [getYearHistoricString(occurence), getEpsHistoric(occurence), getEpsHistoricString(occurence), getPeHistoric(occurence), getPeHistoricString(occurence)]
+
+f_getHistoricRow(occurrence) =>
+    [yr_string, eps_value, eps_string, pe_value, pe_string] = f_get_from_occurence(occurrence)
+    valid = not na(eps_value) and eps_value != 0
+    [valid, yr_string, eps_value, eps_string, pe_value, pe_string]
+
+addHistoricRow(occurrence) =>
+    [valid, yr_string, eps_value, eps_string, pe_value, pe_string] = f_getHistoricRow(occurrence)
+    if valid
+        array.push(year_strings, yr_string)
+        array.push(eps_strings, eps_string)
+        array.push(pe_strings, pe_string)
+        array.push(eps_values, eps_value)
+        array.push(pe_values, pe_value)
+    valid
+
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 0
+    if addHistoricRow(0)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 1
+    if addHistoricRow(1)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 2
+    if addHistoricRow(2)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 3
+    if addHistoricRow(3)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 4
+    if addHistoricRow(4)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 5
+    if addHistoricRow(5)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 6
+    if addHistoricRow(6)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 7
+    if addHistoricRow(7)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 8
+    if addHistoricRow(8)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 9
+    if addHistoricRow(9)
+        max_years := max_years + 1
+if MAX_NUMBER_OF_HISTORICAL_REPORTS > 10
+    if addHistoricRow(10)
+        max_years := max_years + 1
+
+getPeAverage() =>
+    size = array.size(pe_values)
+    sum = 0.0
+    count = 0
+    min_val = 1e20
+    max_val = -1e20
+    if(size == 0)
+        na
+    else
+        for i = 0 to size - 1
+            pe_ = array.get(pe_values, i)
+            if not na(pe_)
+                sum += pe_
+                count += 1
+                min_val := math.min(min_val, pe_)
+                max_val := math.max(max_val, pe_)
+        if count == 0
+            na
+        else if count >= MIN_NUMBER_OF_HISTORICAL_REPORTS_FOR_AVERAGING
+            filtered_sum = sum - min_val - max_val
+            filtered_count = count - 2
+            filtered_sum / filtered_count
+        else
+            sum / count
+
+getPeCurrent() =>
+    if not na(eps_current) and eps_current != 0
+        close / eps_current
+    else
+        na
+
+getPeTtmColor() =>
+    color color = COLOR_NEUTRAL
+    pe_average = getPeAverage()
+    pe_current = getPeCurrent()
+
+    if not na(pe_current)
+        if pe_current <= 0
+            color := COLOR_ALERT
+        else if not na(pe_average) 
+            limit = (pe_average * TTM_VS_AVERAGE_LIMIT) + pe_average
+            if pe_current <= pe_average
+                color := COLOR_GOOD
+            else if pe_current <= limit
+                color :=  COLOR_WARNING
+            else
+                color := COLOR_ALERT
+    color
+
 NUMBER_OF_IDS  = 15
 NUMBER_OF_TABLE_TITLES = 2
 TOTAL_NUMBER_OF_ROWS = NUMBER_OF_TABLE_TITLES + NUMBER_OF_IDS
-TOTAL_NUMBER_OF_COLUMNS = 2
+TOTAL_NUMBER_OF_COLUMNS = 5
 
 // Display table
-var myTable = table.new(position = position.bottom_right, columns = 2, rows = TOTAL_NUMBER_OF_ROWS, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
+var myTable = table.new(position = position.bottom_right, columns = TOTAL_NUMBER_OF_COLUMNS, rows = TOTAL_NUMBER_OF_ROWS, bgcolor = COLOR_BACKGROUND, border_width = TABLE_BORDER_WIDTH, frame_color = COLOR_FRAME, frame_width = TABLE_FRAME_WIDTH, border_color = COLOR_BORDER)
 if(barstate.islast)
     table.set_bgcolor(myTable, COLOR_BACKGROUND)
     table.set_frame_color(myTable, COLOR_FRAME)
@@ -346,10 +498,10 @@ if(barstate.islast)
 
     titleRowIndex = 0
     table.cell(table_id = myTable, column = 0, row = titleRowIndex, text = sector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 1, end_row = titleRowIndex)
+    table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 4, end_row = titleRowIndex)
     titleRowIndex := titleRowIndex + 1
     table.cell(table_id = myTable, column = 0, row = titleRowIndex, text = subSector, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 1, end_row = titleRowIndex)
+    table.merge_cells(table_id = myTable, start_column = 0, start_row = titleRowIndex, end_column = 4, end_row = titleRowIndex)
 
     for columnIndex = 0 to TOTAL_NUMBER_OF_COLUMNS - 1        
         for rowIndex = titleRowIndex + 1 to NUMBER_OF_IDS + 1
@@ -358,3 +510,40 @@ if(barstate.islast)
                 table.cell(table_id = myTable, column = 0, row = rowIndex, text = name, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
             else
                 table.cell(table_id = myTable, column = 1, row = rowIndex, text = value, text_color = COLOR_TEXT, bgcolor = colorValue, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    rowIndex = 2
+
+    // Header labels
+    table.cell(table_id = myTable, column = 3, row = rowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    table.cell(table_id = myTable, column = 4, row = rowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    // Current TTM values
+    rowIndex += 1
+    table.cell(table_id = myTable, column = 3, row = rowIndex, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    eps_text = not na(eps_current) ? str.tostring(truncate(eps_current)) : "N/A"
+    table.cell(table_id = myTable, column = 3, row = rowIndex, text = eps_text, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    pe_current = getPeCurrent()
+    pe_current_text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A"
+    table.cell(table_id = myTable, column = 4, row = rowIndex, text = pe_current_text, text_color = COLOR_TEXT, bgcolor = getPeTtmColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+
+    // Historical values
+    rowIndex += 1
+    if max_years == 0
+        table.cell(table_id = myTable, column = 2, row = rowIndex, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = text.align_center, text_size = TABLE_TEXT_SIZE)
+        table.merge_cells(table_id = myTable, start_column = 2, start_row = rowIndex, end_column = 4, end_row = rowIndex)
+    else
+        occurrence = 0
+        for i = rowIndex to max_years + rowIndex - 1
+            year_string = array.get(year_strings, occurrence)
+            eps_string = array.get(eps_strings, occurrence)
+            pe_string = array.get(pe_strings, occurrence)
+            table.cell(table_id = myTable, column = 2, row = i, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 3, row = i, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.cell(table_id = myTable, column = 4, row = i, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            occurrence += 1
+
+        // Average values
+        rowIndex += max_years
+        table.cell(table_id = myTable, column = 2, row = rowIndex, text = "Average", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        pe_average = getPeAverage()
+        table.cell(table_id = myTable, column = 4, row = rowIndex, text = not na(pe_average) ? str.tostring(truncate(pe_average)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
