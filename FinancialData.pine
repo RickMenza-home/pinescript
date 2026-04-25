@@ -1,6 +1,9 @@
 //@version=6
 indicator("Financial Data", overlay = true, format = format.volume, precision = 2)
 
+show_eps_pe_table = input.bool(true, "Show EPS & P/E Table")
+TOTAL_NUMBER_OF_COLUMNS = show_eps_pe_table ? 5 : 2
+
 // Constants
 MILLION = 1000000
 
@@ -472,7 +475,6 @@ f_add(stringName_ROIC, stringValue_ROIC, getRoicColor(ROIC))
 NUMBER_OF_IDS  = 15
 NUMBER_OF_TABLE_TITLES = 2
 TOTAL_NUMBER_OF_ROWS = NUMBER_OF_TABLE_TITLES + NUMBER_OF_IDS
-TOTAL_NUMBER_OF_COLUMNS = 5
 
 FINANCIAL_ID_COLUMN_INDEX = 0
 FINANCIAL_VALUE_COLUMN_INDEX = 1
@@ -507,38 +509,39 @@ if(barstate.islast)
 
     rowIndex = 2
 
-    // Header labels
-    table.cell(table_id = myTable, column = EPS_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+    if show_eps_pe_table
+        // Header labels
+        table.cell(table_id = myTable, column = EPS_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = "EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = "P/E", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_TITLE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    // Current TTM values
-    rowIndex += 1
-    table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = rowIndex, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    eps_text = not na(eps_current) ? str.tostring(truncate(eps_current)) : "N/A"
-    table.cell(table_id = myTable, column = EPS_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = eps_text, text_color = COLOR_TEXT, bgcolor = getEpsColor(eps_current), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-    pe_current = getPeCurrent()
-    pe_current_text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A"
-    table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = pe_current_text, text_color = COLOR_TEXT, bgcolor = getPeTtmColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        // Current TTM values
+        rowIndex += 1
+        table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = rowIndex, text = "TTM", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        eps_text = not na(eps_current) ? str.tostring(truncate(eps_current)) : "N/A"
+        table.cell(table_id = myTable, column = EPS_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = eps_text, text_color = COLOR_TEXT, bgcolor = getEpsColor(eps_current), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+        pe_current = getPeCurrent()
+        pe_current_text = not na(pe_current) ? str.tostring(truncate(pe_current)) : "N/A"
+        table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = pe_current_text, text_color = COLOR_TEXT, bgcolor = getPeTtmColor(), text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
 
-    // Historical values
-    rowIndex += 1
-    if max_years == 0
-        table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = rowIndex, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = text.align_center, text_size = TABLE_TEXT_SIZE)
-        table.merge_cells(table_id = myTable, start_column = EPS_TABLE_ID_COLUMN_INDEX, start_row = rowIndex, end_column = LAST_COLUMN_INDEX, end_row = rowIndex)
-    else
-        occurrence = 0
-        for i = rowIndex to max_years + rowIndex - 1
-            year_string = array.get(year_strings, occurrence)
-            eps_string = array.get(eps_strings, occurrence)
-            pe_string = array.get(pe_strings, occurrence)
-            table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = i, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-            table.cell(table_id = myTable, column = EPS_TABLE_VALUE_COLUMN_INDEX, row = i, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-            table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = i, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-            occurrence += 1
+        // Historical values
+        rowIndex += 1
+        if max_years == 0
+            table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = rowIndex, text = "No historical EPS", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = text.align_center, text_size = TABLE_TEXT_SIZE)
+            table.merge_cells(table_id = myTable, start_column = EPS_TABLE_ID_COLUMN_INDEX, start_row = rowIndex, end_column = LAST_COLUMN_INDEX, end_row = rowIndex)
+        else
+            occurrence = 0
+            for i = rowIndex to max_years + rowIndex - 1
+                year_string = array.get(year_strings, occurrence)
+                eps_string = array.get(eps_strings, occurrence)
+                pe_string = array.get(pe_strings, occurrence)
+                table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = i, text = year_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+                table.cell(table_id = myTable, column = EPS_TABLE_VALUE_COLUMN_INDEX, row = i, text = eps_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+                table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = i, text = pe_string, text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+                occurrence += 1
 
-        // Average values
-        rowIndex += max_years
-        table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = rowIndex, text = "Average", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
-        table.merge_cells(table_id = myTable, start_column = EPS_TABLE_ID_COLUMN_INDEX, start_row = rowIndex, end_column = EPS_TABLE_VALUE_COLUMN_INDEX, end_row = rowIndex)
-        pe_average = getPeAverage()
-        table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = not na(pe_average) ? str.tostring(truncate(pe_average)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            // Average values
+            rowIndex += max_years
+            table.cell(table_id = myTable, column = EPS_TABLE_ID_COLUMN_INDEX, row = rowIndex, text = "Average", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_KEY_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
+            table.merge_cells(table_id = myTable, start_column = EPS_TABLE_ID_COLUMN_INDEX, start_row = rowIndex, end_column = EPS_TABLE_VALUE_COLUMN_INDEX, end_row = rowIndex)
+            pe_average = getPeAverage()
+            table.cell(table_id = myTable, column = PE_TABLE_VALUE_COLUMN_INDEX, row = rowIndex, text = not na(pe_average) ? str.tostring(truncate(pe_average)) : "N/A", text_color = COLOR_TEXT, bgcolor = COLOR_BACKGROUND, text_halign = TABLE_VALUE_TEXT_ALIGN, text_size = TABLE_TEXT_SIZE)
